@@ -1,6 +1,7 @@
 package zeee.blog.demo.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import zeee.blog.demo.handler.HelloBlogHandler;
 
@@ -17,7 +18,7 @@ public class HelloBlogController {
     @Resource
     private HelloBlogHandler hbh;
 
-    @RequestMapping(value = "hello")
+    @RequestMapping(value = "hello", method = RequestMethod.GET)
     public String helloBlog(){
         return hbh.helloBlog();
     }
