@@ -9,7 +9,7 @@ import javax.annotation.Resource;
  * @author zeee
  * 2022/3/27
  */
-@Service
+@Service("HelloBlogHandler")
 public class HelloBlogHandler {
 
     @Resource

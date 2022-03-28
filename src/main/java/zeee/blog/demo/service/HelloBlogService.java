@@ -1,15 +1,14 @@
 package zeee.blog.demo.service;
 
-import org.springframework.stereotype.Service;
-
 /**
  * @author zeee
- * 2022/3/27
+ * 2022/3/28
  */
-@Service
-public class HelloBlogService {
+public interface HelloBlogService {
 
-    public String helloBlog(){
-        return "HELLO BLOG";
-    }
+    /**
+     * 测试
+     * @return Hello Blog
+     */
+    String helloBlog();
 }

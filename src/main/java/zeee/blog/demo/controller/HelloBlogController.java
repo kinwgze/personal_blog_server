@@ -11,6 +11,7 @@ import javax.annotation.Resource;
  * 2022/3/27
  */
 @RestController
+@RequestMapping("/blog/test/demo")
 public class HelloBlogController {
 
     @Resource
