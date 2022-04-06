@@ -36,12 +36,13 @@ public class HelloBlogController {
     @RequestMapping(value = "insert", method = RequestMethod.GET)
     public String insertAndShow(){
         User user = new User();
-        user.setUsername("wang");
+        user.setUsername("wang22");
         user.setLevel(0);
-        user.setPhoneNumber("111111111");
+        user.setPhoneNumber("1111111113");
         // 这里不应该直接调用的。应该按层次依次调用。这里为了快速测试
-        userOperation.insert(user.getUsername(),user.getLevel(), user.getPhonenumber());
-        User user2 = userOperation.findByName("wang");
+//        userOperation.insert(user.getUsername(),user.getLevel(), user.getPhonenumber());
+        userOperation.insert2(user);
+        User user2 = userOperation.findByName("wang22");
         return user2.toString();
     }
 
