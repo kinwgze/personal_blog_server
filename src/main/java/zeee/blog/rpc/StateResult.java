@@ -6,8 +6,6 @@ package zeee.blog.rpc;
  */
 public class StateResult {
 
-    private static final long serialVersionUID = 1L;
-
     public static final int SUCCESS = 0;
 
     public static final int FAILURE = 1;

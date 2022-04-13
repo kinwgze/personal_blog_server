@@ -7,8 +7,6 @@ package zeee.blog.rpc;
  */
 public class RpcResult<D> extends StateResult {
 
-    private static final long serialVersionUID = 1L;
-
     private D data = null;
 
     public RpcResult() {
