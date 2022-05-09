@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import zeee.blog.git.handler.SyncGitHandler;
-import zeee.blog.git.utils.SyncBlogUtil;
+import zeee.blog.rpc.RpcResult;
 
 import javax.annotation.Resource;
 
@@ -28,14 +28,16 @@ public class SyncGitController {
     private static Logger log = LoggerFactory.getLogger(SyncGitController.class);
 
     @RequestMapping(value = "syncFromGit", method = RequestMethod.GET)
-    public void cloneFromGit(){
+    public RpcResult<Integer> cloneFromGit(){
         String url = "https://github.com/kinwgze/build_website_from_zero.git";
+        Integer res = null;
         try {
-            syncGitHandler.cloneGit(url);
+            res = syncGitHandler.cloneGit(url);
             log.info("success");
         } catch (Exception e) {
            log.error(null, e);
         }
+        return new RpcResult<Integer>(res);
     }
 
 }
