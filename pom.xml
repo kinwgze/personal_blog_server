@@ -10,7 +10,6 @@
     </parent>
     <groupId>zeee</groupId>
     <artifactId>blog</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>blog</name>
     <description>blog</description>
     <properties>
@@ -46,6 +45,7 @@
     </dependencies>
 
     <build>
+        <finalName>blog</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
