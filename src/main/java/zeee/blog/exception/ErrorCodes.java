@@ -13,6 +13,8 @@ public class ErrorCodes {
 
     public static final int SUCCESS = 0;
 
+    public static final int UNKNOWN_ERROR = 11;
+
     /**
      * 根据错误码，返回对应的错误信息
      * @param errorCode 错误码
