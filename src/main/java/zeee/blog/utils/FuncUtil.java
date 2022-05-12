@@ -21,8 +21,8 @@ public class FuncUtil {
     /**
      * 在本地运行一个命令
      * @param command 命令行
-     * @param evps
-     * @param dir
+     * @param evps 环境
+     * @param dir  目录
      * @param timeOutMax 最大的超时时长，单位ms
      * @return 结果
      */
@@ -34,9 +34,9 @@ public class FuncUtil {
         StringBuffer outBuf = new StringBuffer();
         ErrorStreamHandlerThread errorStreamHandlerThread = null;
         try {
-            if (command.length > 2 && "-c".equals(command[1])) {
-                command[2] = "sudo -E" + command[2];
-            }
+//            if (command.length > 2 && "-c".equals(command[1])) {
+//                command[2] = "sudo -E" + command[2];
+//            }
             cmProcess = Runtime.getRuntime().exec(command, evps, dir);
             outResult = new BufferedReader(new InputStreamReader(cmProcess.getInputStream()));
             errorStreamHandlerThread = new ErrorStreamHandlerThread(cmProcess);

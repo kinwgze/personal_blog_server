@@ -1,11 +1,14 @@
 package zeee.blog.git.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import zeee.blog.exception.AppException;
+import zeee.blog.exception.ErrorCodes;
+import zeee.blog.utils.FuncUtil;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.File;
 
 /**
  * @author ：wz
@@ -28,30 +31,18 @@ public class SyncBlogUtil {
      * @return
      */
     public int gitCloneFromGithub(String url) {
-        String command = BIN_SH_C + "cd /var/git && git clone ";
-
-//        //在有指定环境和工作目录的独立进程中执行指定的字符串命令
-//        Process exec (String command, String[]envp, File dir)
-        int exitValue = -9999;
-        BufferedReader reader = null;
-        try {
-            log.info(command + url);
-//            Process process = Runtime.getRuntime().exec(command + url);
-            Process process = Runtime.getRuntime().exec(BIN_SH_C + "/var/git/syncgit.sh");
-            exitValue = process.waitFor();
-            if (0 != exitValue) {
-                log.error("Exec shell failed. Error code is : " + exitValue);
+        // 指令不执行，问题还在定位中
+        String result = FuncUtil.runCommandThrowException(new String[]{BIN_SH_C, "git clone", url}, null, new File("/var/git"), 100 * 1000);
+        if (StringUtils.isNotEmpty(result)) {
+            String[] rsArray = StringUtils.split(result, "\n");
+            if (rsArray != null && rsArray.length > 0) {
+                int errorCode = Integer.parseInt(rsArray[rsArray.length - 1].trim());
+                if (errorCode != 0) {
+                    throw new AppException(ErrorCodes.UNKNOWN_ERROR);
+                }
             }
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                log.error("ErrorMsg=" + line);
-            }
-
-        } catch (Exception e) {
-            log.error(null, e);
         }
-        return exitValue;
+        return 0;
 
     }
 
