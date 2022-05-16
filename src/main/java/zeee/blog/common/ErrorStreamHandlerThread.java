@@ -63,17 +63,13 @@ public class ErrorStreamHandlerThread extends Thread{
         return true;
     }
 
-    public String getErrStr() {
-        return stderr.toString();
-    }
-
     @Override
     public void run() {
         if (process == null) {
             return;
         }
 
-        getErrStr();
+        getStdError();
     }
 
 
