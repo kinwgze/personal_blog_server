@@ -31,8 +31,7 @@ public class SyncBlogUtil {
      * @return
      */
     public int gitCloneFromGithub(String url) {
-        // 指令不执行，问题还在定位中
-        String result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git clone", url}, null, new File("/var/git"), 100 * 1000);
+        String result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git clone '" + url + "'"}, null, new File("/var/git"), 100 * 1000);
         if (StringUtils.isNotEmpty(result)) {
             String[] rsArray = StringUtils.split(result, "\n");
             if (rsArray != null && rsArray.length > 0) {
