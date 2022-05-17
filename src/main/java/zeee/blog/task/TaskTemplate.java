@@ -2,6 +2,7 @@ package zeee.blog.task;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import zeee.blog.utils.FuncUtil;
@@ -27,6 +28,7 @@ public class TaskTemplate {
      */
     private Logger log = LoggerFactory.getLogger(TaskTemplate.class);
 
+    @Lazy
     @Resource
     private TemplateTask templateTask;
 
