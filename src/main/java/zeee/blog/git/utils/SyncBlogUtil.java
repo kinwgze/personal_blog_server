@@ -42,7 +42,6 @@ public class SyncBlogUtil {
             }
         }
         return 0;
-
     }
 
 }
