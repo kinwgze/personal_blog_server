@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -40,6 +41,7 @@ public class FuncUtil {
 //            if (command.length > 2 && "-c".equals(command[1])) {
 //                command[2] = "sudo -E" + command[2];
 //            }
+            log.info("runCommandThrowException" + Arrays.toString(command));
             cmProcess = Runtime.getRuntime().exec(command, evps, dir);
             outResult = new BufferedReader(new InputStreamReader(cmProcess.getInputStream()));
             errorStreamHandlerThread = new ErrorStreamHandlerThread(cmProcess);
