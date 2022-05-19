@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import zeee.blog.git.handler.SyncGitHandler;
+import zeee.blog.operlog.service.OperlogService;
 import zeee.blog.rpc.RpcResult;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author ：wz
@@ -24,22 +24,26 @@ public class SyncGitController {
     @Resource
     private SyncGitHandler syncGitHandler;
 
+    @Resource
+    private OperlogService operlog;
+
     final String BUILD_WEBSITE_FROM_ZERO = "https://github.com/kinwgze/build_website_from_zero.git";
 
 
     /**
      * 日志记录对象
      */
-    private static Logger log = LoggerFactory.getLogger(SyncGitController.class);
+    private static final Logger log = LoggerFactory.getLogger(SyncGitController.class);
 
     @RequestMapping(value = "syncFromGit", method = RequestMethod.GET)
-    public RpcResult<Integer> cloneFromGit(
-            HttpSession session,
-            @RequestParam(value = "url") String url){
+    public RpcResult<Integer> cloneFromGit(@RequestParam(value = "url") String url){
         Integer res = null;
+        if (url == null) {
+            log.error("The received url from front is null!");
+            return new RpcResult<>();
+        }
         try {
             res = syncGitHandler.cloneGit(url);
-            log.info("sync from " + url + "success");
         } catch (Exception e) {
            log.error(null, e);
         }
