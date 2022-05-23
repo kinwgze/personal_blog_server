@@ -94,20 +94,14 @@ public class SyncGitHandler {
                 mdFile.setDate(df.format(new Date(file.lastModified())));
                 mdFile.setTitle(file.getName());
                 mdFile.setSourceFilePath(file.getPath());
-                // 转化为HTML
+                // TODO 转化为HTML
                 mdFile.setHtmlFilePath(null);
-                // 读取内容
+                // TODO 读取内容
                 mdFile.setText(null);
                 mdFileService.addMarkDownFile(mdFile);
             }
         }
 
-
-        if (sourceDir.exists()) {
-            File[] tempList = sourceDir.listFiles();
-            assert tempList != null;
-            log.info(String.format("目录 %s 下共有 %d 个文件", path, tempList.length));
-        }
 
         return 0;
     }
