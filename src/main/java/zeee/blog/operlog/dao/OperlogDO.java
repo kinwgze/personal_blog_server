@@ -7,8 +7,11 @@ import zeee.blog.operlog.entity.OperationLog;
 @Mapper
 public interface OperlogDO {
 
-    @Insert("INSERT INTO OPERATIONLOG(id, loginName, userName, operTime, address, category, description, result, failureReason) " +
-            "VALUES(#{id}, #{loginName}, #{userName}, #{operTime}, #{address}, #{category}, #{description}, #{result}, #{failureReason})")
+    /**
+     * 添加日志
+     */
+    @Insert("INSERT INTO OPERATIONLOG( loginName, userName, operTime, address, category, description, result, failureReason) " +
+            "VALUES(#{loginName}, #{userName}, #{operTime}, #{address}, #{category}, #{description}, #{result}, #{failureReason})")
     void addLog(OperationLog operationLog);
 
 }

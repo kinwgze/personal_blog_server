@@ -23,7 +23,7 @@ public class OperationLog {
 
     private String address = null;
 
-    private String category = null;
+    private Integer category = null;
 
     private String description = null;
 
@@ -71,11 +71,11 @@ public class OperationLog {
         this.address = address;
     }
 
-    public String getCategory() {
+    public Integer getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Integer category) {
         this.category = category;
     }
 

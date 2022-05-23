@@ -27,8 +27,8 @@ public class SyncBlogUtil {
 
     /**
      * 从给定的git url clone项目到本地
-     * @param url
-     * @return
+     * @param url git项目地址
+     * @return 0代表成功
      */
     public int gitCloneFromGithub(String url) {
         String result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git clone '" + url + "'"}, null, new File("/var/git"), 100 * 1000);
