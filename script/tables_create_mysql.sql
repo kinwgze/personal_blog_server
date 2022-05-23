@@ -13,3 +13,13 @@ CREATE TABLE operlog (
      failureReason text NULL,
      PRIMARY KEY (id)
 );
+
+CREATE TABLE markDownFile (
+     id BIGINT auto_increment NOT NULL,
+     title varchar(256) NULL,
+     date varchar(100) NULL,
+     sourceFilePath varchar(256) NULL,
+     htmlFilePath varchar(256) NULL,
+     description text NULL,
+     PRIMARY KEY (id)
+);
