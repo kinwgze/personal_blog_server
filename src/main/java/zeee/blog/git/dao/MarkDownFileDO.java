@@ -2,16 +2,31 @@ package zeee.blog.git.dao;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import zeee.blog.git.entity.MarkDownFile;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface MarkDownFileDO {
 
     /**
-     * 添加markDown
+     * 添加markDown到zeroMdFile表
      */
-    @Insert("INSERT INTO OPERATIONLOG(id, title, date, sourceFilePath, htmlFilePath, text) " +
-            "VALUES(#{id}, #{title}, #{date}, #{sourceFilePath}, #{htmlFilePath}, #{text})")
-    void addMarkDownFile(MarkDownFile markDownFile);
+    @Insert("INSERT INTO zeroMdFile(title, date, sourceFilePath, htmlFilePath, text) " +
+            "VALUES(#{title}, #{date}, #{sourceFilePath}, #{htmlFilePath}, #{text})")
+    void addZeroMdFile(@Param("title") String title,
+                       @Param("date") String date,
+                       @Param("sourceFilePath") String sourceFilePath,
+                       @Param("htmlFilePath") String htmlFilePath,
+                       @Param("text") String text);
+
+    /**
+     * 添加markDown到dailyMdFile表
+     */
+    @Insert("INSERT INTO dailyMdFile(title, date, sourceFilePath, htmlFilePath, text) " +
+            "VALUES(#{title}, #{date}, #{sourceFilePath}, #{htmlFilePath}, #{text})")
+    void addDailyMdFile(@Param("title") String title,
+                        @Param("date") String date,
+                        @Param("sourceFilePath") String sourceFilePath,
+                        @Param("htmlFilePath") String htmlFilePath,
+                        @Param("text") String text);
 
 }

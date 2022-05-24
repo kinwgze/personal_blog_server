@@ -1,7 +1,6 @@
 package zeee.blog.git.service;
 
 import org.springframework.stereotype.Service;
-import zeee.blog.git.entity.MarkDownFile;
 import zeee.blog.git.dao.MarkDownFileDO;
 
 import javax.annotation.Resource;
@@ -17,8 +16,14 @@ public class MarkDownFileServiceImpl implements MarkDownFileService{
     @Resource
     private MarkDownFileDO markDownFileDO;
 
+
     @Override
-    public void addMarkDownFile(MarkDownFile markDownFile) {
-        markDownFileDO.addMarkDownFile(markDownFile);
+    public void addZeroMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text) {
+        markDownFileDO.addZeroMdFile(title, date, sourceFilePath, htmlFilePath, text);
+    }
+
+    @Override
+    public void addDailyMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text) {
+        markDownFileDO.addDailyMdFile(title, date, sourceFilePath, htmlFilePath, text);
     }
 }

@@ -27,7 +27,7 @@ public class SyncGitController {
     @Resource
     private OperlogService operlog;
 
-    final String BUILD_WEBSITE_FROM_ZERO = "https://github.com/kinwgze/build_website_from_zero.git";
+//    final String BUILD_WEBSITE_FROM_ZERO = "https://github.com/kinwgze/build_website_from_zero.git";
 
 
     /**
