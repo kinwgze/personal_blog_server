@@ -21,6 +21,7 @@ CREATE TABLE zeroMdFile (
     sourceFilePath varchar(256) NULL,
     htmlFilePath varchar(256) NULL,
     description text NULL,
+    category INT NULL,
     PRIMARY KEY (id)
 );
 
@@ -31,5 +32,6 @@ CREATE TABLE dailyMdFile (
     sourceFilePath varchar(256) NULL,
     htmlFilePath varchar(256) NULL,
     description text NULL,
+    category INT NULL,
     PRIMARY KEY (id)
 );

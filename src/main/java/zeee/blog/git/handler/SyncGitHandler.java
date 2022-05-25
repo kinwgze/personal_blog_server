@@ -124,10 +124,10 @@ public class SyncGitHandler {
                 // 根据文件所在项目保存到数据库
                 if (category.equals(BUILD_WEBSITE_FROM_ZERO)) {
                     mdFileService.addZeroMdFile(mdFile.getTitle(), mdFile.getDate(), mdFile.getSourceFilePath(),
-                            mdFile.getHtmlFilePath(), mdFile.getText());
+                            mdFile.getHtmlFilePath(), mdFile.getText(), category);
                 } else if (category.equals(DAILY_LEARNING)) {
                     mdFileService.addDailyMdFile(mdFile.getTitle(), mdFile.getDate(), mdFile.getSourceFilePath(),
-                            mdFile.getHtmlFilePath(), mdFile.getText());
+                            mdFile.getHtmlFilePath(), mdFile.getText(), category);
                 }
             }
         }

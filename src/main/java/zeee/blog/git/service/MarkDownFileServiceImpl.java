@@ -18,12 +18,12 @@ public class MarkDownFileServiceImpl implements MarkDownFileService{
 
 
     @Override
-    public void addZeroMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text) {
-        markDownFileDO.addZeroMdFile(title, date, sourceFilePath, htmlFilePath, text);
+    public void addZeroMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text, Integer category) {
+        markDownFileDO.addZeroMdFile(title, date, sourceFilePath, htmlFilePath, text, category);
     }
 
     @Override
-    public void addDailyMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text) {
-        markDownFileDO.addDailyMdFile(title, date, sourceFilePath, htmlFilePath, text);
+    public void addDailyMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text, Integer category) {
+        markDownFileDO.addDailyMdFile(title, date, sourceFilePath, htmlFilePath, text, category);
     }
 }

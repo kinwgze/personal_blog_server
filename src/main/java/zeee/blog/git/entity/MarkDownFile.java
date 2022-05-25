@@ -37,6 +37,11 @@ public class MarkDownFile {
      */
     private String text;
 
+    /**
+     * 分类
+     */
+    private Integer category;
+
     public Integer getId() {
         return id;
     }
@@ -83,5 +88,13 @@ public class MarkDownFile {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Integer getCategory() {
+        return category;
+    }
+
+    public void setCategory(Integer category) {
+        this.category = category;
     }
 }

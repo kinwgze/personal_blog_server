@@ -10,10 +10,10 @@ public interface MarkDownFileService {
     /**
      * 保存MarkDown文件到ZeroMdFile
      */
-    void addZeroMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text);
+    void addZeroMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text, Integer category);
 
     /**
      * 保存MarkDown文件到数据库DailyMdFile
      */
-    void addDailyMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text);
+    void addDailyMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text, Integer category);
 }
