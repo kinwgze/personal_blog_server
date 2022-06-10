@@ -118,17 +118,11 @@ public class SyncGitHandler {
                 mdFile.setTitle(file.getName());
                 mdFile.setSourceFilePath(file.getPath());
                 // 读取内容
-                mdFile.setText(readMdFile(file.getPath()));
+                mdFile.setMdFile(readMdFile(file.getPath()));
                 // 转化为HTML
-                mdFile.setHtmlFilePath(markDown2html(mdFile.getText(), file.getName(), "/var/html"));
-                // 根据文件所在项目保存到数据库
-                if (category.equals(BUILD_WEBSITE_FROM_ZERO)) {
-                    mdFileService.addZeroMdFile(mdFile.getTitle(), mdFile.getDate(), mdFile.getSourceFilePath(),
-                            mdFile.getHtmlFilePath(), mdFile.getText(), category);
-                } else if (category.equals(DAILY_LEARNING)) {
-                    mdFileService.addDailyMdFile(mdFile.getTitle(), mdFile.getDate(), mdFile.getSourceFilePath(),
-                            mdFile.getHtmlFilePath(), mdFile.getText(), category);
-                }
+                mdFile.setHtmlFile(markDown2html(mdFile.getMdFile()));
+                // 保存到数据库
+                mdFileService.insert(mdFile);
             }
         }
         operlog.addLog(null, null, new Date(), null, Category.GIT,
@@ -170,18 +164,16 @@ public class SyncGitHandler {
     /**
      * 将MarkDown文件转化为HTML文件
      * @param markDown MarkDown文件的内容
-     * @param fileName MarkDown文件名
-     * @param desPath 目的目录
-     * @return 生成的HTML文件地址
+     * @return 生成的HTML文件
      */
-    public String markDown2html(String markDown, String fileName, String desPath) {
+    public String markDown2html(String markDown) {
         // 将文件转换为html，string类型
         Parser parser = Parser.builder().build();
         Node document =  parser.parse(markDown);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
-        String html = renderer.render(document);
+        return renderer.render(document);
 
-        // 如果目的文件存在，直接使用，如果目的文件不存在，新建文件
+/*        // 如果目的文件存在，直接使用，如果目的文件不存在，新建文件
         File htmlFile = new File(desPath + fileName + ".html");
         boolean createHtmlFile;
         try {
@@ -195,9 +187,9 @@ public class SyncGitHandler {
         } catch (IOException ie) {
             log.error("新建文件失败" + htmlFile.getPath(), ie);
             throw new AppException(ErrorCodes.CREATE_FILE_ERROR);
-        }
+        }*/
 
-        // 将html保存到目的文件，覆盖保存
+/*        // 将html保存到目的文件，覆盖保存
         if (createHtmlFile) {
             // try-with-resource的形式，可以省去关闭资源的步骤
             try (FileWriter fileWriter = new FileWriter(htmlFile)) {
@@ -207,8 +199,8 @@ public class SyncGitHandler {
                 log.error(null, ie);
                 throw new AppException(ErrorCodes.FILE_WRITE_ERROR);
             }
-        }
-        return null;
+        }*/
+//        return null;
     }
 
 

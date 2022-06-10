@@ -1,8 +1,8 @@
 package zeee.blog.operlog.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import zeee.blog.operlog.dao.OperlogDO;
+import zeee.blog.operlog.entity.OperationLog;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -19,11 +19,19 @@ public class OperlogServiceImpl implements OperlogService{
     private OperlogDO operlogDO;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void addLog(String loginName, String userName, Date date, String address,
                               Integer category, String description, Integer result, String failureReason) {
 
-        operlogDO.addLog(loginName, userName, date.toString(), address, category, description, result, failureReason);
+        OperationLog operationLog = new OperationLog();
+        operationLog.setLoginName(loginName);
+        operationLog.setUserName(userName);
+        operationLog.setOperTime(date);
+        operationLog.setAddress(address);
+        operationLog.setCategory(category);
+        operationLog.setDescription(description);
+        operationLog.setResult(result);
+        operationLog.setFailureReason(failureReason);
+        operlogDO.insert(operationLog);
     }
 
 

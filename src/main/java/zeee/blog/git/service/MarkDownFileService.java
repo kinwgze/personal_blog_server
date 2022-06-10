@@ -1,5 +1,7 @@
 package zeee.blog.git.service;
 
+import zeee.blog.git.entity.MarkDownFile;
+
 /**
  * @author ：wz
  * @date ：Created in 2022/5/23 20:24
@@ -8,12 +10,8 @@ package zeee.blog.git.service;
 public interface MarkDownFileService {
 
     /**
-     * 保存MarkDown文件到ZeroMdFile
+     * 保存MarkDown文件到markDownFile
      */
-    void addZeroMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text, Integer category);
+    void insert(MarkDownFile markDownFile);
 
-    /**
-     * 保存MarkDown文件到数据库DailyMdFile
-     */
-    void addDailyMdFile(String title, String date, String sourceFilePath, String htmlFilePath, String text, Integer category);
 }
