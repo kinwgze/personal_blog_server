@@ -1,8 +1,9 @@
 package zeee.blog.git.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
-import zeee.blog.git.entity.MarkDownFile;
 import zeee.blog.git.dao.MarkDownFileDO;
+import zeee.blog.git.entity.MarkDownFile;
 
 import javax.annotation.Resource;
 
@@ -17,8 +18,9 @@ public class MarkDownFileServiceImpl implements MarkDownFileService{
     @Resource
     private MarkDownFileDO markDownFileDO;
 
+
     @Override
-    public void addMarkDownFile(MarkDownFile markDownFile) {
-        markDownFileDO.addMarkDownFile(markDownFile);
+    public void insert(MarkDownFile markDownFile){
+        markDownFileDO.insert(markDownFile);
     }
 }

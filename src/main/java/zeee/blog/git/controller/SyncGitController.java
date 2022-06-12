@@ -12,6 +12,8 @@ import zeee.blog.rpc.RpcResult;
 
 import javax.annotation.Resource;
 
+import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
+
 /**
  * @author ：wz
  * @date ：Created in 2022/5/6 20:09
@@ -27,7 +29,7 @@ public class SyncGitController {
     @Resource
     private OperlogService operlog;
 
-    final String BUILD_WEBSITE_FROM_ZERO = "https://github.com/kinwgze/build_website_from_zero.git";
+//    final String BUILD_WEBSITE_FROM_ZERO = "https://github.com/kinwgze/build_website_from_zero.git";
 
 
     /**
@@ -48,6 +50,17 @@ public class SyncGitController {
            log.error(null, e);
         }
         return new RpcResult<Integer>(res);
+    }
+
+    @RequestMapping(value = "initDir", method = RequestMethod.GET)
+    public RpcResult<String> initDir() {
+        String desPath = "/var/git/build_website_from_zero";
+        Integer result = syncGitHandler.initDir(desPath, 0);
+        if (result.equals(RESULT_SUCCESS)) {
+            return new RpcResult<>("success");
+        } else {
+            return new RpcResult<>("false");
+        }
     }
 
 }

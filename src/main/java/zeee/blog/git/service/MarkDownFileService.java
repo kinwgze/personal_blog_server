@@ -10,8 +10,8 @@ import zeee.blog.git.entity.MarkDownFile;
 public interface MarkDownFileService {
 
     /**
-     * 保存MarkDown文件到数据库
-     * @param markDownFile 文件
+     * 保存MarkDown文件到markDownFile
      */
-    public void addMarkDownFile(MarkDownFile markDownFile);
+    void insert(MarkDownFile markDownFile);
+
 }

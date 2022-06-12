@@ -1,17 +1,10 @@
 package zeee.blog.operlog.dao;
 
-import org.apache.ibatis.annotations.Insert;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import zeee.blog.operlog.entity.OperationLog;
 
 @Mapper
-public interface OperlogDO {
-
-    /**
-     * 添加日志
-     */
-    @Insert("INSERT INTO OPERATIONLOG( loginName, userName, operTime, address, category, description, result, failureReason) " +
-            "VALUES(#{loginName}, #{userName}, #{operTime}, #{address}, #{category}, #{description}, #{result}, #{failureReason})")
-    void addLog(OperationLog operationLog);
+public interface OperlogDO extends BaseMapper<OperationLog> {
 
 }
