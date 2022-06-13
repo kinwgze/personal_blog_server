@@ -110,13 +110,14 @@ public class SyncGitHandler {
                 }
             }
             // 如果是文件，必定是md文件，以.md结尾，存放到数据库中
-            if (file != null && file.isFile()) {
-                log.info("Write file " + file.getPath() + "to Database!");
+            if (file != null && file.isFile() && StringUtils.endsWith(file.getName(), ".md")) {
+                log.info("Write file " + file.getPath() + " to Database!");
                 MarkDownFile mdFile = new MarkDownFile();
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 mdFile.setDate(df.format(new Date(file.lastModified())));
                 mdFile.setTitle(file.getName());
                 mdFile.setSourceFilePath(file.getPath());
+                mdFile.setCategory(category);
                 // 读取内容
                 mdFile.setMdFile(readMdFile(file.getPath()));
                 // 转化为HTML
