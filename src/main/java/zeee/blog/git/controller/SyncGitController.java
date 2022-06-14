@@ -38,7 +38,7 @@ public class SyncGitController {
     private static final Logger log = LoggerFactory.getLogger(SyncGitController.class);
 
     @RequestMapping(value = "syncFromGit", method = RequestMethod.GET)
-    public RpcResult<Integer> cloneFromGit(@RequestParam(value = "url") String url){
+    public RpcResult<Integer> cloneFromGit(@RequestParam(value = "url") String url) {
         Integer res = null;
         if (url == null) {
             log.error("The received url from front is null!");
@@ -61,6 +61,13 @@ public class SyncGitController {
         } else {
             return new RpcResult<>("false");
         }
+    }
+
+    @RequestMapping(value = "update", method = RequestMethod.PUT)
+    public RpcResult<String> updateGitProject(@RequestParam(value = "url") String url) {
+        url = "https://github.com/kinwgze/build_website_from_zero.git";
+        String result = syncGitHandler.updateGitProject(url, 0);
+        return new RpcResult<>(result);
     }
 
 }

@@ -15,10 +15,10 @@ import zeee.blog.git.entity.MarkDownFile;
 import zeee.blog.git.service.MarkDownFileService;
 import zeee.blog.git.utils.SyncBlogUtil;
 import zeee.blog.operlog.service.OperlogService;
+import zeee.blog.utils.FuncUtil;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
@@ -40,6 +42,8 @@ public class SyncGitHandler {
 
     public static final int BUILD_WEBSITE_FROM_ZERO = 0;
     public static final int DAILY_LEARNING = 1;
+
+    final String BUILD_WEBSITE_FROM_ZERO_URL = "https://github.com/kinwgze/build_website_from_zero.git";
 
     @Resource
     private SyncBlogUtil syncBlogUtil;
@@ -163,6 +167,29 @@ public class SyncGitHandler {
     }
 
     /**
+     * 根据文件路径和分类，读取文件，转为MarkDownFile类型
+     * @param filePath
+     * @param category
+     * @return
+     */
+    public MarkDownFile readMdFileByPath(String filePath, Integer category) {
+        MarkDownFile mdFile = new MarkDownFile();
+        if (StringUtils.isNotEmpty(filePath)) {
+            File file = new File(filePath);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            mdFile.setDate(df.format(new Date(file.lastModified())));
+            mdFile.setTitle(file.getName());
+            mdFile.setSourceFilePath(file.getPath());
+            mdFile.setCategory(category);
+            // 读取内容
+            mdFile.setMdFile(readMdFile(file.getPath()));
+            // 转化为HTML
+            mdFile.setHtmlFile(markDown2html(mdFile.getMdFile()));
+        }
+        return mdFile;
+    }
+
+    /**
      * 将MarkDown文件转化为HTML文件
      * @param markDown MarkDown文件的内容
      * @return 生成的HTML文件
@@ -202,6 +229,67 @@ public class SyncGitHandler {
             }
         }*/
 //        return null;
+    }
+
+
+    /**
+     * 根据项目路径和分类，更新数据库记录
+     * @param url
+     * @param category
+     * @return
+     */
+    public String updateGitProject(String url, int category) {
+        String desPath = null;
+        if (url.equals(BUILD_WEBSITE_FROM_ZERO_URL)) {
+            desPath = "/var/git/build_website_from_zero";
+        }
+        if (desPath != null) {
+            // git fetch
+            String fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
+                    null, new File(desPath), 100 * 1000);
+            // 获取diff信息
+            String result = null;
+            if (fetchResult != null) {
+                 result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
+                        null, new File(desPath), 100 * 1000);
+            }
+            // git pull
+            String pullResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
+                    null, new File(desPath), 100 * 1000);
+            // 匹配diff信息中的md文件，保存在mdFileSet中
+            Set<String> mdFileSet = new HashSet<>();
+            if (StringUtils.isNotEmpty(result)) {
+                final String REGEX_MD = "(/)([a-zA-Z0-9_./]+)\\.(md)";
+                Pattern pattern = Pattern.compile(REGEX_MD);
+                Matcher matcher = pattern.matcher(result);
+                while (matcher.find()) {
+                    // 找到的格式为/blog_server/1.testf_test.md
+                    String fileName = matcher.group();
+                    String filePath = desPath + fileName;
+                    mdFileSet.add(filePath);
+                }
+            }
+            // 根据category读取文件
+            List<MarkDownFile> files = mdFileService.selectByCategory(category);
+            Set<String> filesSet = new HashSet<>();
+            // 拿到所有文件的路径
+            files.forEach(file -> filesSet.add(file.getSourceFilePath()));
+            if (CollectionUtils.isNotEmpty(mdFileSet)) {
+                mdFileSet.forEach(mdFile -> {
+                    MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
+                    // 如果已有文件，update
+                    if (filesSet.contains(mdFile)) {
+                        File file = new File(mdFile);
+                        mdFileService.updateBySourceFilePath(markDownFile);
+                    } else {
+                        // 否则，视为新文件，进行插入
+                        mdFileService.insert(markDownFile);
+                    }
+                });
+            }
+        }
+        // TODO 操作日志，异常，返回值等待完善
+        return "success";
     }
 
 

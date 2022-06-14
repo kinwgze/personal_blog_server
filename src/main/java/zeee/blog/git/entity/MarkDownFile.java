@@ -52,6 +52,7 @@ public class MarkDownFile {
     /**
      * 分类
      */
+    @TableField("category")
     private Integer category;
 
     public Integer getId() {
