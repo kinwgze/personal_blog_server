@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,16 +117,7 @@ public class SyncGitHandler {
             // 如果是文件，必定是md文件，以.md结尾，存放到数据库中
             if (file != null && file.isFile() && StringUtils.endsWith(file.getName(), ".md")) {
                 log.info("Write file " + file.getPath() + " to Database!");
-                MarkDownFile mdFile = new MarkDownFile();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                mdFile.setDate(df.format(new Date(file.lastModified())));
-                mdFile.setTitle(file.getName());
-                mdFile.setSourceFilePath(file.getPath());
-                mdFile.setCategory(category);
-                // 读取内容
-                mdFile.setMdFile(readMdFile(file.getPath()));
-                // 转化为HTML
-                mdFile.setHtmlFile(markDown2html(mdFile.getMdFile()));
+                MarkDownFile mdFile = readMdFileByPath(file.getPath(), category);
                 // 保存到数据库
                 mdFileService.insert(mdFile);
             }
@@ -195,40 +187,14 @@ public class SyncGitHandler {
      * @return 生成的HTML文件
      */
     public String markDown2html(String markDown) {
+        if (StringUtils.isEmpty(markDown)) {
+            return null;
+        }
         // 将文件转换为html，string类型
         Parser parser = Parser.builder().build();
         Node document =  parser.parse(markDown);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         return renderer.render(document);
-
-/*        // 如果目的文件存在，直接使用，如果目的文件不存在，新建文件
-        File htmlFile = new File(desPath + fileName + ".html");
-        boolean createHtmlFile;
-        try {
-            // 如果文件不存在，新建文件
-            if (!htmlFile.exists()) {
-                createHtmlFile = htmlFile.createNewFile();
-            } else {
-                // 如果文件存在，可以直接使用
-                createHtmlFile = true;
-            }
-        } catch (IOException ie) {
-            log.error("新建文件失败" + htmlFile.getPath(), ie);
-            throw new AppException(ErrorCodes.CREATE_FILE_ERROR);
-        }*/
-
-/*        // 将html保存到目的文件，覆盖保存
-        if (createHtmlFile) {
-            // try-with-resource的形式，可以省去关闭资源的步骤
-            try (FileWriter fileWriter = new FileWriter(htmlFile)) {
-                fileWriter.write(html);
-                return htmlFile.getPath();
-            } catch (IOException ie) {
-                log.error(null, ie);
-                throw new AppException(ErrorCodes.FILE_WRITE_ERROR);
-            }
-        }*/
-//        return null;
     }
 
 
@@ -238,58 +204,70 @@ public class SyncGitHandler {
      * @param category
      * @return
      */
-    public String updateGitProject(String url, int category) {
+    public Integer updateGitProject(String url, int category) {
         String desPath = null;
         if (url.equals(BUILD_WEBSITE_FROM_ZERO_URL)) {
             desPath = "/var/git/build_website_from_zero";
         }
-        if (desPath != null) {
-            // git fetch
-            String fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
-                    null, new File(desPath), 100 * 1000);
-            // 获取diff信息
-            String result = null;
-            if (fetchResult != null) {
-                 result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
+        AtomicInteger sum = new AtomicInteger();
+        try {
+            if (desPath != null) {
+                // git fetch
+                String fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
                         null, new File(desPath), 100 * 1000);
-            }
-            // git pull
-            String pullResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
-                    null, new File(desPath), 100 * 1000);
-            // 匹配diff信息中的md文件，保存在mdFileSet中
-            Set<String> mdFileSet = new HashSet<>();
-            if (StringUtils.isNotEmpty(result)) {
-                final String REGEX_MD = "(/)([a-zA-Z0-9_./]+)\\.(md)";
-                Pattern pattern = Pattern.compile(REGEX_MD);
-                Matcher matcher = pattern.matcher(result);
-                while (matcher.find()) {
-                    // 找到的格式为/blog_server/1.testf_test.md
-                    String fileName = matcher.group();
-                    String filePath = desPath + fileName;
-                    mdFileSet.add(filePath);
+                // 获取diff信息
+                String result = null;
+                if (fetchResult != null) {
+                     result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
+                            null, new File(desPath), 100 * 1000);
+                }
+                // git pull
+                String pullResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
+                        null, new File(desPath), 100 * 1000);
+                // 匹配diff信息中的md文件，保存在mdFileSet中
+                Set<String> mdFileSet = new HashSet<>();
+                if (StringUtils.isNotEmpty(result)) {
+                    final String REGEX_MD = "(/)([a-zA-Z0-9_./]+)\\.(md)";
+                    Pattern pattern = Pattern.compile(REGEX_MD);
+                    Matcher matcher = pattern.matcher(result);
+                    while (matcher.find()) {
+                        // 找到的格式为/blog_server/1.testf_test.md
+                        String fileName = matcher.group();
+                        String filePath = desPath + fileName;
+                        mdFileSet.add(filePath);
+                    }
+                }
+                // 根据category读取文件
+                List<MarkDownFile> files = mdFileService.selectByCategory(category);
+                Set<String> filePathSet = new HashSet<>();
+                // 拿到所有文件的路径
+                files.forEach(file -> filePathSet.add(file.getSourceFilePath()));
+                if (CollectionUtils.isNotEmpty(mdFileSet)) {
+                    mdFileSet.forEach(mdFile -> {
+                        MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
+                        sum.getAndIncrement();
+                        // 如果已有文件，update
+                        if (filePathSet.contains(mdFile)) {
+                            mdFileService.updateBySourceFilePath(markDownFile);
+                            log.info("update " + markDownFile.getSourceFilePath() + " success!");
+                        } else {
+                            // 否则，视为新文件，进行插入
+                            mdFileService.insert(markDownFile);
+                            log.info("insert " + markDownFile.getSourceFilePath() + " success!");
+                        }
+                    });
                 }
             }
-            // 根据category读取文件
-            List<MarkDownFile> files = mdFileService.selectByCategory(category);
-            Set<String> filesSet = new HashSet<>();
-            // 拿到所有文件的路径
-            files.forEach(file -> filesSet.add(file.getSourceFilePath()));
-            if (CollectionUtils.isNotEmpty(mdFileSet)) {
-                mdFileSet.forEach(mdFile -> {
-                    MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
-                    // 如果已有文件，update
-                    if (filesSet.contains(mdFile)) {
-                        File file = new File(mdFile);
-                        mdFileService.updateBySourceFilePath(markDownFile);
-                    } else {
-                        // 否则，视为新文件，进行插入
-                        mdFileService.insert(markDownFile);
-                    }
-                });
-            }
+            operlog.addLog(null, null, new Date(), null, category, "update project " + url,
+                    RESULT_SUCCESS, null);
+            return sum.get();
+        } catch (Exception e) {
+            log.error(null, e);
+            operlog.addLog(null, null, new Date(), null, category, "update project " + url,
+                    RESULT_FAILURE, e.getMessage());
+            return -1;
         }
-        // TODO 操作日志，异常，返回值等待完善
-        return "success";
+
     }
 
 

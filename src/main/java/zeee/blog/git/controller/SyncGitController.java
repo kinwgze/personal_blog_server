@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import zeee.blog.exception.AppException;
 import zeee.blog.git.handler.SyncGitHandler;
 import zeee.blog.operlog.service.OperlogService;
 import zeee.blog.rpc.RpcResult;
 
 import javax.annotation.Resource;
 
+import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
 
 /**
@@ -47,7 +49,7 @@ public class SyncGitController {
         try {
             res = syncGitHandler.cloneGit(url);
         } catch (Exception e) {
-           log.error(null, e);
+            log.error(null, e);
         }
         return new RpcResult<Integer>(res);
     }
@@ -64,10 +66,23 @@ public class SyncGitController {
     }
 
     @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public RpcResult<String> updateGitProject(@RequestParam(value = "url") String url) {
+    public RpcResult<Integer> updateGitProject(@RequestParam(value = "url") String url) {
+        RpcResult<Integer> res = new RpcResult<>();
+        // 临时测试
         url = "https://github.com/kinwgze/build_website_from_zero.git";
-        String result = syncGitHandler.updateGitProject(url, 0);
-        return new RpcResult<>(result);
+        Integer result = null;
+        result = syncGitHandler.updateGitProject(url, 0);
+        if (result == 0) {
+            res.setState(RESULT_SUCCESS);
+            res.setData(0);
+        } else if (result == -1) {
+            res.setState(RESULT_FAILURE);
+            res.setState(-1);
+        } else {
+            res.setState(RESULT_SUCCESS);
+            res.setData(result);
+        }
+        return res;
     }
 
 }

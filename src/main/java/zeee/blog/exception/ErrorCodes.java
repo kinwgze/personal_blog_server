@@ -28,7 +28,12 @@ public class ErrorCodes {
     /**
      * 文件写入失败
      */
-    public static final int FILE_WRITE_ERROR = 21;
+    public static final int FILE_WRITE_ERROR = 22;
+
+    /**
+     * 更新失败
+     */
+    public static final int UPDATE_ERROR = 23;
 
     /**
      * 根据错误码，返回对应的错误信息
