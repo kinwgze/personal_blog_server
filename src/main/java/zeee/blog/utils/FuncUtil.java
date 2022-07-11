@@ -52,7 +52,7 @@ public class FuncUtil {
             while (timeOut <= timeOutMax) {
                 if (outResult.ready()) {
                     String strTmp = outResult.readLine();
-                    while (strTmp != null && strTmp.trim().endsWith("")) {
+                    while (strTmp != null) {
                         outBuf.append(strTmp).append("\n");
                         strTmp= outResult.readLine();
                     }

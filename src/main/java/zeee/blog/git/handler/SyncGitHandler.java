@@ -206,15 +206,23 @@ public class SyncGitHandler {
      */
     public Integer updateGitProject(String url, int category) {
         String desPath = null;
-        if (url.equals(BUILD_WEBSITE_FROM_ZERO_URL)) {
+        if (category == 0) {
             desPath = "/var/git/build_website_from_zero";
+        } else if (category == 1) {
+            desPath = "/var/git/daily_learning";
         }
         AtomicInteger sum = new AtomicInteger();
         try {
             if (desPath != null) {
                 // git fetch
-                String fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
-                        null, new File(desPath), 100 * 1000);
+                String fetchResult = null;
+                try {
+                    fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
+                            null, new File(desPath), 10 * 1000);
+                } catch (Exception e) {
+                    log.error(null, e);
+                    throw new AppException(ErrorCodes.GIT_FETCH_ERROR);
+                }
                 // 获取diff信息
                 String result = null;
                 if (fetchResult != null) {
@@ -237,25 +245,29 @@ public class SyncGitHandler {
                         mdFileSet.add(filePath);
                     }
                 }
-                // 根据category读取文件
-                List<MarkDownFile> files = mdFileService.selectByCategory(category);
-                Set<String> filePathSet = new HashSet<>();
-                // 拿到所有文件的路径
-                files.forEach(file -> filePathSet.add(file.getSourceFilePath()));
                 if (CollectionUtils.isNotEmpty(mdFileSet)) {
-                    mdFileSet.forEach(mdFile -> {
-                        MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
-                        sum.getAndIncrement();
-                        // 如果已有文件，update
-                        if (filePathSet.contains(mdFile)) {
-                            mdFileService.updateBySourceFilePath(markDownFile);
-                            log.info("update " + markDownFile.getSourceFilePath() + " success!");
-                        } else {
-                            // 否则，视为新文件，进行插入
-                            mdFileService.insert(markDownFile);
-                            log.info("insert " + markDownFile.getSourceFilePath() + " success!");
-                        }
-                    });
+                    // 根据category读取文件
+                    List<MarkDownFile> files = mdFileService.selectByCategory(category);
+                    Set<String> filePathSet = new HashSet<>();
+                    // 拿到所有文件的路径
+                    files.forEach(file -> filePathSet.add(file.getSourceFilePath()));
+                    if (CollectionUtils.isNotEmpty(mdFileSet)) {
+                        mdFileSet.forEach(mdFile -> {
+                            MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
+                            sum.getAndIncrement();
+                            // 如果已有文件，update
+                            if (filePathSet.contains(mdFile)) {
+                                mdFileService.updateBySourceFilePath(markDownFile);
+                                log.info("update " + markDownFile.getSourceFilePath() + " success!");
+                            } else {
+                                // 否则，视为新文件，进行插入
+                                mdFileService.insert(markDownFile);
+                                log.info("insert " + markDownFile.getSourceFilePath() + " success!");
+                            }
+                        });
+                    }
+                } else {
+                    throw new AppException(ErrorCodes.UPDATE_ERROR);
                 }
             }
             operlog.addLog(null, null, new Date(), null, category, "update project " + url,

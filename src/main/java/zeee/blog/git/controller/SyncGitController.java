@@ -1,12 +1,12 @@
 package zeee.blog.git.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import zeee.blog.exception.AppException;
 import zeee.blog.git.handler.SyncGitHandler;
 import zeee.blog.operlog.service.OperlogService;
 import zeee.blog.rpc.RpcResult;
@@ -55,32 +55,49 @@ public class SyncGitController {
     }
 
     @RequestMapping(value = "initDir", method = RequestMethod.GET)
-    public RpcResult<String> initDir() {
-        String desPath = "/var/git/build_website_from_zero";
-        Integer result = syncGitHandler.initDir(desPath, 0);
-        if (result.equals(RESULT_SUCCESS)) {
-            return new RpcResult<>("success");
-        } else {
-            return new RpcResult<>("false");
+    public RpcResult<String> initDir(@RequestParam(value = "category") Integer category) {
+        String desPath = null;
+        if (category == 0) {
+            desPath = "/var/git/build_website_from_zero";
+        } else if (category == 1) {
+            desPath = "/var/git/daily_learning";
         }
+
+        Integer result = null;
+        if (StringUtils.isNotEmpty(desPath)) {
+            result = syncGitHandler.initDir(desPath, category);
+            if (result.equals(RESULT_SUCCESS)) {
+                return new RpcResult<>("success");
+            } else {
+                return new RpcResult<>("false");
+            }
+        }
+        return new RpcResult<>("false");
+
     }
 
-    @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public RpcResult<Integer> updateGitProject(@RequestParam(value = "url") String url) {
+    @RequestMapping(value = "update", method = RequestMethod.GET)
+    public RpcResult<Integer> updateGitProject(@RequestParam(value = "category") Integer category) {
         RpcResult<Integer> res = new RpcResult<>();
-        // 临时测试
-        url = "https://github.com/kinwgze/build_website_from_zero.git";
-        Integer result = null;
-        result = syncGitHandler.updateGitProject(url, 0);
-        if (result == 0) {
-            res.setState(RESULT_SUCCESS);
-            res.setData(0);
-        } else if (result == -1) {
-            res.setState(RESULT_FAILURE);
-            res.setState(-1);
-        } else {
-            res.setState(RESULT_SUCCESS);
-            res.setData(result);
+        String url = null;
+        if (category == 0) {
+            url = "https://github.com/kinwgze/build_website_from_zero.git";
+        } else if (category == 1) {
+            url = "https://github.com/kinwgze/daily_learning.git";
+        }
+        Integer result;
+        if (StringUtils.isNotEmpty(url)) {
+            result = syncGitHandler.updateGitProject(url, category);
+            if (result == 0) {
+                res.setState(RESULT_SUCCESS);
+                res.setData(0);
+            } else if (result == -1) {
+                res.setState(RESULT_FAILURE);
+                res.setState(-1);
+            } else {
+                res.setState(RESULT_SUCCESS);
+                res.setData(result);
+            }
         }
         return res;
     }

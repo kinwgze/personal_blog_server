@@ -36,6 +36,11 @@ public class ErrorCodes {
     public static final int UPDATE_ERROR = 23;
 
     /**
+     * git fetch失败
+     */
+    public static final int GIT_FETCH_ERROR = 24;
+
+    /**
      * 根据错误码，返回对应的错误信息
      * @param errorCode 错误码
      * @return 对应的错误信息提示
