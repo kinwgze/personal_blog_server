@@ -15,10 +15,10 @@ import zeee.blog.git.entity.MarkDownFile;
 import zeee.blog.git.service.MarkDownFileService;
 import zeee.blog.git.utils.SyncBlogUtil;
 import zeee.blog.operlog.service.OperlogService;
+import zeee.blog.utils.FuncUtil;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,6 +26,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
@@ -40,6 +43,8 @@ public class SyncGitHandler {
 
     public static final int BUILD_WEBSITE_FROM_ZERO = 0;
     public static final int DAILY_LEARNING = 1;
+
+    final String BUILD_WEBSITE_FROM_ZERO_URL = "https://github.com/kinwgze/build_website_from_zero.git";
 
     @Resource
     private SyncBlogUtil syncBlogUtil;
@@ -110,17 +115,9 @@ public class SyncGitHandler {
                 }
             }
             // 如果是文件，必定是md文件，以.md结尾，存放到数据库中
-            if (file != null && file.isFile()) {
-                log.info("Write file " + file.getPath() + "to Database!");
-                MarkDownFile mdFile = new MarkDownFile();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                mdFile.setDate(df.format(new Date(file.lastModified())));
-                mdFile.setTitle(file.getName());
-                mdFile.setSourceFilePath(file.getPath());
-                // 读取内容
-                mdFile.setMdFile(readMdFile(file.getPath()));
-                // 转化为HTML
-                mdFile.setHtmlFile(markDown2html(mdFile.getMdFile()));
+            if (file != null && file.isFile() && StringUtils.endsWith(file.getName(), ".md")) {
+                log.info("Write file " + file.getPath() + " to Database!");
+                MarkDownFile mdFile = readMdFileByPath(file.getPath(), category);
                 // 保存到数据库
                 mdFileService.insert(mdFile);
             }
@@ -162,45 +159,127 @@ public class SyncGitHandler {
     }
 
     /**
+     * 根据文件路径和分类，读取文件，转为MarkDownFile类型
+     * @param filePath
+     * @param category
+     * @return
+     */
+    public MarkDownFile readMdFileByPath(String filePath, Integer category) {
+        MarkDownFile mdFile = new MarkDownFile();
+        if (StringUtils.isNotEmpty(filePath)) {
+            File file = new File(filePath);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            mdFile.setDate(df.format(new Date(file.lastModified())));
+            mdFile.setTitle(file.getName());
+            mdFile.setSourceFilePath(file.getPath());
+            mdFile.setCategory(category);
+            // 读取内容
+            mdFile.setMdFile(readMdFile(file.getPath()));
+            // 转化为HTML
+            mdFile.setHtmlFile(markDown2html(mdFile.getMdFile()));
+        }
+        return mdFile;
+    }
+
+    /**
      * 将MarkDown文件转化为HTML文件
      * @param markDown MarkDown文件的内容
      * @return 生成的HTML文件
      */
     public String markDown2html(String markDown) {
+        if (StringUtils.isEmpty(markDown)) {
+            return null;
+        }
         // 将文件转换为html，string类型
         Parser parser = Parser.builder().build();
         Node document =  parser.parse(markDown);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         return renderer.render(document);
+    }
 
-/*        // 如果目的文件存在，直接使用，如果目的文件不存在，新建文件
-        File htmlFile = new File(desPath + fileName + ".html");
-        boolean createHtmlFile;
+
+    /**
+     * 根据项目路径和分类，更新数据库记录
+     * @param url
+     * @param category
+     * @return
+     */
+    public Integer updateGitProject(String url, int category) {
+        String desPath = null;
+        if (category == 0) {
+            desPath = "/var/git/build_website_from_zero";
+        } else if (category == 1) {
+            desPath = "/var/git/daily_learning";
+        }
+        AtomicInteger sum = new AtomicInteger();
         try {
-            // 如果文件不存在，新建文件
-            if (!htmlFile.exists()) {
-                createHtmlFile = htmlFile.createNewFile();
-            } else {
-                // 如果文件存在，可以直接使用
-                createHtmlFile = true;
+            if (desPath != null) {
+                // git fetch
+                String fetchResult = null;
+                try {
+                    fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
+                            null, new File(desPath), 10 * 1000);
+                } catch (Exception e) {
+                    log.error(null, e);
+                    throw new AppException(ErrorCodes.GIT_FETCH_ERROR);
+                }
+                // 获取diff信息
+                String result = null;
+                if (fetchResult != null) {
+                     result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
+                            null, new File(desPath), 100 * 1000);
+                }
+                // git pull
+                String pullResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
+                        null, new File(desPath), 100 * 1000);
+                // 匹配diff信息中的md文件，保存在mdFileSet中
+                Set<String> mdFileSet = new HashSet<>();
+                if (StringUtils.isNotEmpty(result)) {
+                    final String REGEX_MD = "(/)([a-zA-Z0-9_./]+)\\.(md)";
+                    Pattern pattern = Pattern.compile(REGEX_MD);
+                    Matcher matcher = pattern.matcher(result);
+                    while (matcher.find()) {
+                        // 找到的格式为/blog_server/1.testf_test.md
+                        String fileName = matcher.group();
+                        String filePath = desPath + fileName;
+                        mdFileSet.add(filePath);
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(mdFileSet)) {
+                    // 根据category读取文件
+                    List<MarkDownFile> files = mdFileService.selectByCategory(category);
+                    Set<String> filePathSet = new HashSet<>();
+                    // 拿到所有文件的路径
+                    files.forEach(file -> filePathSet.add(file.getSourceFilePath()));
+                    if (CollectionUtils.isNotEmpty(mdFileSet)) {
+                        mdFileSet.forEach(mdFile -> {
+                            MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
+                            sum.getAndIncrement();
+                            // 如果已有文件，update
+                            if (filePathSet.contains(mdFile)) {
+                                mdFileService.updateBySourceFilePath(markDownFile);
+                                log.info("update " + markDownFile.getSourceFilePath() + " success!");
+                            } else {
+                                // 否则，视为新文件，进行插入
+                                mdFileService.insert(markDownFile);
+                                log.info("insert " + markDownFile.getSourceFilePath() + " success!");
+                            }
+                        });
+                    }
+                } else {
+                    throw new AppException(ErrorCodes.UPDATE_ERROR);
+                }
             }
-        } catch (IOException ie) {
-            log.error("新建文件失败" + htmlFile.getPath(), ie);
-            throw new AppException(ErrorCodes.CREATE_FILE_ERROR);
-        }*/
+            operlog.addLog(null, null, new Date(), null, category, "update project " + url,
+                    RESULT_SUCCESS, null);
+            return sum.get();
+        } catch (Exception e) {
+            log.error(null, e);
+            operlog.addLog(null, null, new Date(), null, category, "update project " + url,
+                    RESULT_FAILURE, e.getMessage());
+            return -1;
+        }
 
-/*        // 将html保存到目的文件，覆盖保存
-        if (createHtmlFile) {
-            // try-with-resource的形式，可以省去关闭资源的步骤
-            try (FileWriter fileWriter = new FileWriter(htmlFile)) {
-                fileWriter.write(html);
-                return htmlFile.getPath();
-            } catch (IOException ie) {
-                log.error(null, ie);
-                throw new AppException(ErrorCodes.FILE_WRITE_ERROR);
-            }
-        }*/
-//        return null;
     }
 
 

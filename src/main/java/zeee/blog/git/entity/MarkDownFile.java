@@ -1,5 +1,6 @@
 package zeee.blog.git.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,7 +16,7 @@ public class MarkDownFile {
     /**
      * 数据库中的id
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -51,6 +52,7 @@ public class MarkDownFile {
     /**
      * 分类
      */
+    @TableField("category")
     private Integer category;
 
     public Integer getId() {

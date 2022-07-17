@@ -6,6 +6,7 @@ import zeee.blog.git.dao.MarkDownFileDO;
 import zeee.blog.git.entity.MarkDownFile;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author ：wz
@@ -22,5 +23,20 @@ public class MarkDownFileServiceImpl implements MarkDownFileService{
     @Override
     public void insert(MarkDownFile markDownFile){
         markDownFileDO.insert(markDownFile);
+    }
+
+    @Override
+    public void updateBySourceFilePath(MarkDownFile markDownFile) {
+        QueryWrapper<MarkDownFile> wapper = new QueryWrapper<>();
+        wapper.eq("source_file_path", markDownFile.getSourceFilePath());
+        markDownFileDO.update(markDownFile, wapper);
+    }
+
+    @Override
+    public List<MarkDownFile> selectByCategory(Integer category) {
+        //首先构造QueryWrapper来进行条件的添加
+        QueryWrapper<MarkDownFile> wrapper = new QueryWrapper<>();
+        wrapper.eq("category",0);
+        return markDownFileDO.selectList(wrapper);
     }
 }

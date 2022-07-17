@@ -1,5 +1,6 @@
 package zeee.blog.operlog.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -18,7 +19,7 @@ public class OperationLog {
     public static final Integer RESULT_FAILURE = 1;
     public static final Integer RESULT_PARTIAL_SUCCESS = 2;
 
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long id = null;
 
     @TableField("login_name")
