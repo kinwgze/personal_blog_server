@@ -267,6 +267,7 @@ public class SyncGitHandler {
                         });
                     }
                 } else {
+                    // 不需要更新，更新失败
                     throw new AppException(ErrorCodes.UPDATE_ERROR);
                 }
             }
