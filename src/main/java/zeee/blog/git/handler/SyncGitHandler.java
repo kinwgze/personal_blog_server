@@ -44,8 +44,6 @@ public class SyncGitHandler {
     public static final int BUILD_WEBSITE_FROM_ZERO = 0;
     public static final int DAILY_LEARNING = 1;
 
-    final String BUILD_WEBSITE_FROM_ZERO_URL = "https://github.com/kinwgze/build_website_from_zero.git";
-
     @Resource
     private SyncBlogUtil syncBlogUtil;
 
