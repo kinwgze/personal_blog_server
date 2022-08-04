@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -13,11 +14,13 @@ import java.util.Date;
  * @description：操作日志实体
  */
 @TableName("TBL_OPERLOG")
-public class OperationLog {
+public class OperationLog implements Serializable {
 
     public static final Integer RESULT_SUCCESS = 0;
     public static final Integer RESULT_FAILURE = 1;
     public static final Integer RESULT_PARTIAL_SUCCESS = 2;
+
+    private static final long serialVersionUID = -6160390565262710986L;
 
     @TableId(type = IdType.AUTO)
     private Long id = null;
