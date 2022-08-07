@@ -5,14 +5,17 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serializable;
+
 /**
  * @author ：wz
  * @date ：Created in 2022/5/23 20:00
  * @description：md结尾的文件
  */
 @TableName("TBL_MARKDOWN_FILE")
-public class MarkDownFile {
+public class MarkDownFile implements Serializable {
 
+    private static final long serialVersionUID = -8672828564157030914L;
     /**
      * 数据库中的id
      */

@@ -44,8 +44,6 @@ public class SyncGitHandler {
     public static final int BUILD_WEBSITE_FROM_ZERO = 0;
     public static final int DAILY_LEARNING = 1;
 
-    final String BUILD_WEBSITE_FROM_ZERO_URL = "https://github.com/kinwgze/build_website_from_zero.git";
-
     @Resource
     private SyncBlogUtil syncBlogUtil;
 
@@ -267,6 +265,7 @@ public class SyncGitHandler {
                         });
                     }
                 } else {
+                    // 不需要更新，更新失败
                     throw new AppException(ErrorCodes.UPDATE_ERROR);
                 }
             }
@@ -281,6 +280,7 @@ public class SyncGitHandler {
         }
 
     }
+    // test
 
 
 }

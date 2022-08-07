@@ -41,6 +41,11 @@ public class ErrorCodes {
     public static final int GIT_FETCH_ERROR = 24;
 
     /**
+     * 执行命令超时
+     */
+    public static final int TIME_OUT = 25;
+
+    /**
      * 根据错误码，返回对应的错误信息
      * @param errorCode 错误码
      * @return 对应的错误信息提示

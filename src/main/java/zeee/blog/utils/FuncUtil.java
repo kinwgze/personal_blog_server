@@ -3,6 +3,8 @@ package zeee.blog.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zeee.blog.common.ErrorStreamHandlerThread;
+import zeee.blog.exception.AppException;
+import zeee.blog.exception.ErrorCodes;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -79,6 +81,7 @@ public class FuncUtil {
             try {
                 if (timeOut > timeOutMax || exitValue != 0) {
                     cmProcess.destroy();
+                    throw new AppException(ErrorCodes.TIME_OUT);
                 } else {
                     cmProcess.exitValue();
                 }
