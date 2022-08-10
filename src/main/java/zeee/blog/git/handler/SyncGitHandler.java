@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
@@ -262,32 +263,28 @@ public class SyncGitHandler {
                 if (CollectionUtils.isNotEmpty(mdFileSet)) {
                     // 根据category读取文件
                     List<MarkDownFile> files = mdFileService.selectByCategory(category);
-                    Set<String> filePathSet = new HashSet<>();
-                    // 拿到所有文件的路径
-                    files.forEach(file -> filePathSet.add(file.getSourceFilePath()));
+                    Set<String> filePathSet = files.stream().map(MarkDownFile::getSourceFilePath).collect(Collectors.toSet());
+
                     if (CollectionUtils.isNotEmpty(mdFileSet)) {
                         mdFileSet.forEach(mdFile -> {
                             MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
-                            sum.getAndIncrement();
-                            // 如果已有文件，update
-                            if (filePathSet.contains(mdFile)) {
-                                mdFileService.updateBySourceFilePath(markDownFile);
-                                log.info("update " + markDownFile.getSourceFilePath() + " success!");
-                            } else {
-                                // 否则，视为新文件，进行插入
-                                /*
-                                git项目的update有问题，当更新的文件中包含xxx.md时，会被检测到。从而当成新的文件进行处理。
-                                需要进行检测。git diff中检测信息需要优化，可能需要使用@@进行分割
-                                 */
-                                mdFileService.insert(markDownFile);
-                                log.info("insert " + markDownFile.getSourceFilePath() + " success!");
-                                // 新文件插入后，需要更新redis中的list，这里有两种方法，第一种就是这样，udpate的时候更新redis
-                                // 另一种就是udpate之后，删除redis中的数据，再选择插入全部数据，或者不插入。暂时使用更新，最终方案未定
-                                Long size = redisTemplate.opsForList().size(redisKey);
-                                if (size != null && size > 0) {
-                                    redisTemplate.opsForList().rightPush(redisKey, markDownFile.getTitle());
+                            if (markDownFile.getMdFile() != null) {
+                                sum.getAndIncrement();
+                                // 如果已有文件，update
+                                if (filePathSet.contains(mdFile)) {
+                                    mdFileService.updateBySourceFilePath(markDownFile);
+                                    log.info("update " + markDownFile.getSourceFilePath() + " success!");
+                                } else {
+                                    // 否则，视为新文件，进行插入
+                                    mdFileService.insert(markDownFile);
+                                    log.info("insert " + markDownFile.getSourceFilePath() + " success!");
+                                    // 新文件插入后，需要更新redis中的list，这里有两种方法，第一种就是这样，udpate的时候更新redis
+                                    // 另一种就是udpate之后，删除redis中的数据，再选择插入全部数据，或者不插入。暂时使用更新，最终方案未定
+                                    Long size = redisTemplate.opsForList().size(redisKey);
+                                    if (size != null && size > 0) {
+                                        redisTemplate.opsForList().rightPush(redisKey, markDownFile.getTitle());
+                                    }
                                 }
-
                             }
                         });
                     }
