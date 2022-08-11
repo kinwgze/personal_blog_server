@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import zeee.blog.common.Category;
+import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.exception.AppException;
 import zeee.blog.exception.ErrorCodes;
 import zeee.blog.git.entity.MarkDownFile;
@@ -278,11 +279,13 @@ public class SyncGitHandler {
                                     // 否则，视为新文件，进行插入
                                     mdFileService.insert(markDownFile);
                                     log.info("insert " + markDownFile.getSourceFilePath() + " success!");
-                                    // 新文件插入后，需要更新redis中的list，这里有两种方法，第一种就是这样，udpate的时候更新redis
-                                    // 另一种就是udpate之后，删除redis中的数据，再选择插入全部数据，或者不插入。暂时使用更新，最终方案未定
+                                    // 新文件插入后，需要更新redis中的list，udpate的时候更新redis
                                     Long size = redisTemplate.opsForList().size(redisKey);
                                     if (size != null && size > 0) {
-                                        redisTemplate.opsForList().rightPush(redisKey, markDownFile.getTitle());
+                                        MdNamePathVO mdNamePathVO = new MdNamePathVO();
+                                        mdNamePathVO.setPath(markDownFile.getSourceFilePath());
+                                        mdNamePathVO.setTitle(markDownFile.getTitle());
+                                        redisTemplate.opsForList().rightPush(redisKey, mdNamePathVO);
                                     }
                                 }
                             }

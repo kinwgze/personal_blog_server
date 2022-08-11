@@ -1,5 +1,7 @@
 package zeee.blog.display.service;
 
+import zeee.blog.display.entity.MdNamePathVO;
+
 import java.util.List;
 
 /**
@@ -12,5 +14,5 @@ public interface DisplayService {
      * @param category category
      * @return nameList
      */
-    List<String> queryNameListByCategory(Integer category);
+    List<MdNamePathVO> queryNameAndPathListByCategory(Integer category);
 }

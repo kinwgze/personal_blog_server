@@ -2,10 +2,12 @@ package zeee.blog.display.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
+import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.git.dao.MarkDownFileDO;
 import zeee.blog.git.entity.MarkDownFile;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,10 +28,17 @@ public class DisplayServiceImpl implements DisplayService{
      * @return nameList
      */
     @Override
-    public List<String> queryNameListByCategory(Integer category) {
+    public List<MdNamePathVO> queryNameAndPathListByCategory(Integer category) {
         QueryWrapper<MarkDownFile> wrapper = new QueryWrapper<>();
-        wrapper.eq("category", category).select("title");
+        wrapper.eq("category", category).select("title", "source_file_path");
         List<MarkDownFile> files = markDownFileDO.selectList(wrapper);
-        return files.stream().map(MarkDownFile::getTitle).collect(Collectors.toList());
+        List<MdNamePathVO> result = new ArrayList<>();
+        for (MarkDownFile file : files) {
+            MdNamePathVO mdNamePathVO = new MdNamePathVO();
+            mdNamePathVO.setPath(file.getSourceFilePath());
+            mdNamePathVO.setTitle(file.getTitle());
+            result.add(mdNamePathVO);
+        }
+        return result;
     }
 }

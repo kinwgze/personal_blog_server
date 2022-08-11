@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.display.service.DisplayService;
 import zeee.blog.operlog.service.OperlogService;
 
@@ -49,7 +50,7 @@ public class DisplayHandler {
 
 
     @SuppressWarnings("unchecked")
-    public List<String> getNameListByCategory(Integer category) {
+    public List<MdNamePathVO> getNameListByCategory(Integer category) {
         try {
             // 尝试从redis获取，根据size判断是否有数据
             String key = "nameListCategory" + category;
@@ -57,16 +58,16 @@ public class DisplayHandler {
             String operDesc = null;
             if (size == null || size == 0) {
                 // 如果redis里面获取不到，尝试从数据库获取
-                List<String> namesFromDb = displayService.queryNameListByCategory(category);
+                List<MdNamePathVO> namesFromDb = displayService.queryNameAndPathListByCategory(category);
                 // 然后将数据库中获取到的数据放到redis中
                 redisTemplate.opsForList().rightPushAll(key, namesFromDb);
                 operDesc = "get name list by category form db! ";
-                log.info(operDesc + " the size is " + namesFromDb.size());
+                log.info(operDesc);
                 return namesFromDb;
             }
-            List<String> names = redisTemplate.opsForList().range(key, 0, size);
+            List<MdNamePathVO> names = redisTemplate.opsForList().range(key, 0, size);
             operDesc = "get name list by category form redis! ";
-            log.info(operDesc + " the size is " + names.size());
+            log.info(operDesc);
             operlogService.addLog(null, null, new Date(), null, category, operDesc,
                     RESULT_SUCCESS, null);
             return names;
