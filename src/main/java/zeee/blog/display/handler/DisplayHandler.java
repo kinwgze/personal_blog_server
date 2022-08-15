@@ -1,5 +1,6 @@
 package zeee.blog.display.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -81,4 +82,45 @@ public class DisplayHandler {
     }
 
 
+    public String getMarkdownContent(String filePath, Integer category) {
+
+        if (StringUtils.isEmpty(filePath) || category == null) {
+            return null;
+        }
+        String operDesc = null;
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append(category).append("_").append(filePath);
+            // 尝试从redis获取数据，如果能够获取，就直接返回
+            String fileContent = (String) redisTemplate.opsForValue().get(sb.toString());
+            if (StringUtils.isNotEmpty(fileContent)) {
+                operDesc = "get content from redis! ";
+                log.info(operDesc);
+                return fileContent;
+            } else {
+                // 如果获取不到，从数据库查询
+                String content = displayService.getContentByPathAndCategory(filePath, category);
+                if (StringUtils.isNotEmpty(content)) {
+                    operDesc = "get content from db! ";
+                    log.info(operDesc);
+                    redisTemplate.opsForValue().set(sb.toString(), content);
+                    return content;
+                } else {
+                    operDesc = "get content from db error!";
+                    log.error(operDesc);
+                }
+            }
+            operlogService.addLog(null, null, new Date(), null, category, operDesc,
+                    RESULT_SUCCESS, null);
+            return null;
+
+        } catch (Exception e) {
+            operDesc = "get markdown content error！";
+            log.error(operDesc, e);
+            operlogService.addLog(null, null, new Date(), null, category, operDesc,
+                    RESULT_FAILURE, e.getMessage());
+            throw e;
+        }
+
+    }
 }

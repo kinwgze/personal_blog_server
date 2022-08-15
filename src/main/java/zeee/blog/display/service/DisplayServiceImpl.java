@@ -1,14 +1,14 @@
 package zeee.blog.display.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.git.dao.MarkDownFileDO;
 import zeee.blog.git.entity.MarkDownFile;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,5 +40,23 @@ public class DisplayServiceImpl implements DisplayService{
             result.add(mdNamePathVO);
         }
         return result;
+    }
+
+    /**
+     * 通过文件路径和分类查询文件内容
+     *
+     * @param filePath 文件路径
+     * @param category 文件内容
+     */
+    @Override
+    public String getContentByPathAndCategory(String filePath, Integer category) {
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("category",category);
+        map.put("source_file_path", filePath);
+        List<MarkDownFile> files = markDownFileDO.selectByMap(map);
+        if (CollectionUtils.isNotEmpty(files)) {
+            return files.get(0).getMdFile();
+        }
+        return null;
     }
 }

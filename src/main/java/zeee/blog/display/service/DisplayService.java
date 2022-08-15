@@ -15,4 +15,9 @@ public interface DisplayService {
      * @return nameList
      */
     List<MdNamePathVO> queryNameAndPathListByCategory(Integer category);
+
+    /**
+     * 通过文件路径和分类查询文件内容
+     */
+    String getContentByPathAndCategory(String filePath, Integer category);
 }
