@@ -2,10 +2,8 @@ package zeee.blog.display.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.display.handler.DisplayHandler;
 import zeee.blog.rpc.RpcListLoadResult;
 import zeee.blog.rpc.RpcResult;
@@ -32,11 +30,19 @@ public class DisplayController {
 
 
     @RequestMapping(value = "getNameListByCategory/{category}", method = RequestMethod.GET)
-    public RpcResult<List<String>> getNameListByCategory(@PathVariable(value = "category") Integer category) {
-        RpcResult<List<String>> result = new RpcResult<>();
-        List<String> names = displayHandler.getNameListByCategory(category);
-        result.setData(names);
+    public RpcResult<List<MdNamePathVO>> getNameListByCategory(@PathVariable(value = "category") Integer category) {
+        RpcResult<List<MdNamePathVO>> result = new RpcResult<>();
+        List<MdNamePathVO> res = displayHandler.getNameListByCategory(category);
+        result.setData(res);
+        return result;
+    }
 
+    @RequestMapping(value = "getMarkdownContent", method = RequestMethod.GET)
+    public RpcResult<String> getMarkdownContent(@RequestParam(value = "filePath") String filePath,
+                                                @RequestParam(value = "category") Integer category) {
+        RpcResult<String> result = new RpcResult<>();
+        String res = displayHandler.getMarkdownContent(filePath, category);
+        result.setData(res);
         return result;
     }
 

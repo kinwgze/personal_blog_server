@@ -7,8 +7,10 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import zeee.blog.common.Category;
+import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.exception.AppException;
 import zeee.blog.exception.ErrorCodes;
 import zeee.blog.git.entity.MarkDownFile;
@@ -29,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
@@ -48,10 +51,21 @@ public class SyncGitHandler {
     private SyncBlogUtil syncBlogUtil;
 
     @Resource
-    private OperlogService operlog;
+    private OperlogService operlogService;
 
     @Resource
     private MarkDownFileService mdFileService;
+
+    /**
+     * 需要注入redis模板
+     * 对于RedisTemplate的泛型情况,
+     * 可以使用<String, String>
+     * <Object, Object>
+     * 或者不写泛型
+     * 注意,属性的名称必须为redisTemplate,因为按名称注入,框架创建的对象就是这个名字的
+     */
+    @Resource
+    private RedisTemplate redisTemplate;
 
 
 
@@ -76,10 +90,10 @@ public class SyncGitHandler {
         }
         // 记录操作日志
         if (res != null && res.equals(RESULT_SUCCESS)) {
-            operlog.addLog(null, null, new Date(), null, Category.GIT,
+            operlogService.addLog(null, null, new Date(), null, Category.GIT,
                     "从" + url + "clone成功", RESULT_SUCCESS, null);
         } else {
-            operlog.addLog(null, null, new Date(), null, Category.GIT,
+            operlogService.addLog(null, null, new Date(), null, Category.GIT,
                     "从" + url + "clone失败", RESULT_FAILURE, null);
         }
         return res;
@@ -95,7 +109,7 @@ public class SyncGitHandler {
 
         if (!sourceDir.exists()) {
             log.error("path not exist: " + path);
-            operlog.addLog(null, null, new Date(), null, Category.GIT,
+            operlogService.addLog(null, null, new Date(), null, Category.GIT,
                     "path not exist: " + path, RESULT_FAILURE, null);
             return RESULT_FAILURE;
         }
@@ -120,7 +134,7 @@ public class SyncGitHandler {
                 mdFileService.insert(mdFile);
             }
         }
-        operlog.addLog(null, null, new Date(), null, Category.GIT,
+        operlogService.addLog(null, null, new Date(), null, Category.GIT,
                 "Init dir success!", RESULT_SUCCESS, null);
         return RESULT_SUCCESS;
     }
@@ -204,6 +218,7 @@ public class SyncGitHandler {
      */
     public Integer updateGitProject(String url, int category) {
         String desPath = null;
+        String redisKey = "nameListCategory" + category;
         if (category == 0) {
             desPath = "/var/git/build_website_from_zero";
         } else if (category == 1) {
@@ -221,19 +236,22 @@ public class SyncGitHandler {
                     log.error(null, e);
                     throw new AppException(ErrorCodes.GIT_FETCH_ERROR);
                 }
+                log.info(fetchResult);
                 // 获取diff信息
                 String result = null;
                 if (fetchResult != null) {
                      result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
                             null, new File(desPath), 100 * 1000);
                 }
+                log.info(result);
                 // git pull
                 String pullResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
                         null, new File(desPath), 100 * 1000);
+//              log.info(pullResult);
                 // 匹配diff信息中的md文件，保存在mdFileSet中
                 Set<String> mdFileSet = new HashSet<>();
                 if (StringUtils.isNotEmpty(result)) {
-                    final String REGEX_MD = "(/)([a-zA-Z0-9_./]+)\\.(md)";
+                    final String REGEX_MD = "(/)([a-zA-Z0-9-_./]+)\\.(md)";
                     Pattern pattern = Pattern.compile(REGEX_MD);
                     Matcher matcher = pattern.matcher(result);
                     while (matcher.find()) {
@@ -246,21 +264,30 @@ public class SyncGitHandler {
                 if (CollectionUtils.isNotEmpty(mdFileSet)) {
                     // 根据category读取文件
                     List<MarkDownFile> files = mdFileService.selectByCategory(category);
-                    Set<String> filePathSet = new HashSet<>();
-                    // 拿到所有文件的路径
-                    files.forEach(file -> filePathSet.add(file.getSourceFilePath()));
+                    Set<String> filePathSet = files.stream().map(MarkDownFile::getSourceFilePath).collect(Collectors.toSet());
+
                     if (CollectionUtils.isNotEmpty(mdFileSet)) {
                         mdFileSet.forEach(mdFile -> {
                             MarkDownFile markDownFile = readMdFileByPath(mdFile, category);
-                            sum.getAndIncrement();
-                            // 如果已有文件，update
-                            if (filePathSet.contains(mdFile)) {
-                                mdFileService.updateBySourceFilePath(markDownFile);
-                                log.info("update " + markDownFile.getSourceFilePath() + " success!");
-                            } else {
-                                // 否则，视为新文件，进行插入
-                                mdFileService.insert(markDownFile);
-                                log.info("insert " + markDownFile.getSourceFilePath() + " success!");
+                            if (markDownFile.getMdFile() != null) {
+                                sum.getAndIncrement();
+                                // 如果已有文件，update
+                                if (filePathSet.contains(mdFile)) {
+                                    mdFileService.updateBySourceFilePath(markDownFile);
+                                    log.info("update " + markDownFile.getSourceFilePath() + " success!");
+                                } else {
+                                    // 否则，视为新文件，进行插入
+                                    mdFileService.insert(markDownFile);
+                                    log.info("insert " + markDownFile.getSourceFilePath() + " success!");
+                                    // 新文件插入后，需要更新redis中的list，udpate的时候更新redis
+                                    Long size = redisTemplate.opsForList().size(redisKey);
+                                    if (size != null && size > 0) {
+                                        MdNamePathVO mdNamePathVO = new MdNamePathVO();
+                                        mdNamePathVO.setPath(markDownFile.getSourceFilePath());
+                                        mdNamePathVO.setTitle(markDownFile.getTitle());
+                                        redisTemplate.opsForList().rightPush(redisKey, mdNamePathVO);
+                                    }
+                                }
                             }
                         });
                     }
@@ -269,12 +296,12 @@ public class SyncGitHandler {
                     throw new AppException(ErrorCodes.UPDATE_ERROR);
                 }
             }
-            operlog.addLog(null, null, new Date(), null, category, "update project " + url,
+            operlogService.addLog(null, null, new Date(), null, category, "update project " + url,
                     RESULT_SUCCESS, null);
             return sum.get();
         } catch (Exception e) {
             log.error(null, e);
-            operlog.addLog(null, null, new Date(), null, category, "update project " + url,
+            operlogService.addLog(null, null, new Date(), null, category, "update project " + url,
                     RESULT_FAILURE, e.getMessage());
             return -1;
         }
