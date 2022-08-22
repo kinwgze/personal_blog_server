@@ -3,6 +3,7 @@ package zeee.blog.display.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import zeee.blog.common.loghttp.LogHttp;
 import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.display.handler.DisplayHandler;
 import zeee.blog.rpc.RpcListLoadResult;
@@ -29,6 +30,7 @@ public class DisplayController {
     private DisplayHandler displayHandler;
 
 
+    @LogHttp
     @RequestMapping(value = "getNameListByCategory/{category}", method = RequestMethod.GET)
     public RpcResult<List<MdNamePathVO>> getNameListByCategory(@PathVariable(value = "category") Integer category) {
         RpcResult<List<MdNamePathVO>> result = new RpcResult<>();
@@ -37,6 +39,7 @@ public class DisplayController {
         return result;
     }
 
+    @LogHttp
     @RequestMapping(value = "getMarkdownContent", method = RequestMethod.GET)
     public RpcResult<String> getMarkdownContent(@RequestParam(value = "filePath") String filePath,
                                                 @RequestParam(value = "category") Integer category) {

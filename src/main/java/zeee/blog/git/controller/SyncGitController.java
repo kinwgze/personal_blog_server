@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import zeee.blog.common.loghttp.LogHttp;
 import zeee.blog.git.handler.SyncGitHandler;
 import zeee.blog.operlog.service.OperlogService;
 import zeee.blog.rpc.RpcResult;
@@ -39,6 +40,7 @@ public class SyncGitController {
      */
     private static final Logger log = LoggerFactory.getLogger(SyncGitController.class);
 
+    @LogHttp
     @RequestMapping(value = "syncFromGit", method = RequestMethod.GET)
     public RpcResult<Integer> cloneFromGit(@RequestParam(value = "url") String url) {
         Integer res = null;
@@ -54,6 +56,7 @@ public class SyncGitController {
         return new RpcResult<Integer>(res);
     }
 
+    @LogHttp
     @RequestMapping(value = "initDir", method = RequestMethod.GET)
     public RpcResult<String> initDir(@RequestParam(value = "category") Integer category) {
         String desPath = null;
@@ -76,6 +79,7 @@ public class SyncGitController {
 
     }
 
+    @LogHttp
     @RequestMapping(value = "update", method = RequestMethod.GET)
     public RpcResult<Integer> updateGitProject(@RequestParam(value = "category") Integer category) {
         RpcResult<Integer> res = new RpcResult<>();
