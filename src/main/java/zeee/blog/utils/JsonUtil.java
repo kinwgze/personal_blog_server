@@ -17,7 +17,7 @@ public class JsonUtil {
     /**
      * Object转JSONString
      */
-    public static String objectTOJSONString(Object object) {
+    public static String objectToJsonString(Object object) {
         String string = JSON.toJSONString(object);
         return string;
     }

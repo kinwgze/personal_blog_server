@@ -11,8 +11,10 @@ import zeee.blog.common.loghttp.LogHttp;
 import zeee.blog.git.handler.SyncGitHandler;
 import zeee.blog.operlog.service.OperlogService;
 import zeee.blog.rpc.RpcResult;
+import zeee.blog.utils.FuncUtil;
 
 import javax.annotation.Resource;
+import java.io.File;
 
 import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
@@ -106,6 +108,11 @@ public class SyncGitController {
         return res;
     }
 
-    // hello
+    @LogHttp
+    @RequestMapping(value = "test", method = RequestMethod.GET)
+    public String updateGitProject() {
+        return FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "free -g"},
+                null, new File("/root"), 100 * 1000);
+    }
 
 }

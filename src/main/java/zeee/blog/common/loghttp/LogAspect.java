@@ -1,6 +1,5 @@
 package zeee.blog.common.loghttp;
 
-import io.netty.util.internal.ObjectUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -56,7 +55,7 @@ public class LogAspect {
                     }
                     argList.add(arg);
                 }
-                params = JsonUtil.objectTOJSONString(argList.toArray());
+                params = JsonUtil.objectToJsonString(argList.toArray());
             }
 
 //            String reqLog = String.format("request[%s]: url: %s , method: %s , ip: %s , auth: %s , parameters: %s%n",
@@ -72,10 +71,10 @@ public class LogAspect {
             HttpServletResponse response = sra.getResponse();
             String resp = "";
             if (result != null) {
-                resp = JsonUtil.objectTOJSONString(result);
+                resp = JsonUtil.objectToJsonString(result);
             }
-            String respLog = String.format("response[%s]: url: %s , method: %s , status: %d , data: %s, use: %d ms%n",
-                    data.getId(), data.getUrl(), data.getMethod(), response == null ? -1 : response.getStatus(), resp,
+            String respLog = String.format("response[%s]: url: %s , method: %s , status: %d , use: %d ms%n",
+                    data.getId(), data.getUrl(), data.getMethod(), response == null ? -1 : response.getStatus(),
                     System.currentTimeMillis() - data.getStartTime());
             log.info(respLog);
             return result;
