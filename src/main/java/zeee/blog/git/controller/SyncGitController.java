@@ -11,7 +11,7 @@ import zeee.blog.common.loghttp.LogHttp;
 import zeee.blog.git.handler.SyncGitHandler;
 import zeee.blog.operlog.service.OperlogService;
 import zeee.blog.rpc.RpcResult;
-import zeee.blog.utils.FuncUtil;
+import zeee.blog.utils.commandutil.CommandUtil;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -36,6 +36,8 @@ public class SyncGitController {
 
 //    final String BUILD_WEBSITE_FROM_ZERO = "https://github.com/kinwgze/build_website_from_zero.git";
 
+    @Resource
+    private CommandUtil commandUtil;
 
     /**
      * 日志记录对象
@@ -111,7 +113,7 @@ public class SyncGitController {
     @LogHttp
     @RequestMapping(value = "test", method = RequestMethod.GET)
     public String updateGitProject() {
-        return FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "free -g"},
+        return commandUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "free -g"},
                 null, new File("/root"), 100 * 1000);
     }
 

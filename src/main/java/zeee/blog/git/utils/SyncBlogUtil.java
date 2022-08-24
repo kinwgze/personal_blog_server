@@ -6,8 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zeee.blog.exception.AppException;
 import zeee.blog.exception.ErrorCodes;
-import zeee.blog.utils.FuncUtil;
+import zeee.blog.utils.commandutil.CommandUtil;
 
+import javax.annotation.Resource;
 import java.io.File;
 
 /**
@@ -17,6 +18,9 @@ import java.io.File;
  */
 @Service("SyncBlogUtil")
 public class SyncBlogUtil {
+
+    @Resource
+    private CommandUtil commandUtil;
 
 //    public static final String BIN_SH_C = "/bin/sh -c ";
 
@@ -31,7 +35,7 @@ public class SyncBlogUtil {
      * @return 0代表成功
      */
     public int gitCloneFromGithub(String url) {
-        String result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git clone '" + url + "'"}, null, new File("/var/git"), 100 * 1000);
+        String result = commandUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git clone '" + url + "'"}, null, new File("/var/git"), 100 * 1000);
         if (StringUtils.isNotEmpty(result)) {
             String[] rsArray = StringUtils.split(result, "\n");
             if (rsArray != null && rsArray.length > 0) {

@@ -17,7 +17,7 @@ import zeee.blog.git.entity.MarkDownFile;
 import zeee.blog.git.service.MarkDownFileService;
 import zeee.blog.git.utils.SyncBlogUtil;
 import zeee.blog.operlog.service.OperlogService;
-import zeee.blog.utils.FuncUtil;
+import zeee.blog.utils.commandutil.CommandUtil;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -55,6 +55,9 @@ public class SyncGitHandler {
 
     @Resource
     private MarkDownFileService mdFileService;
+
+    @Resource
+    private CommandUtil commandUtil;
 
     /**
      * 需要注入redis模板
@@ -230,22 +233,20 @@ public class SyncGitHandler {
                 // git fetch
                 String fetchResult = null;
                 try {
-                    fetchResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
+                    fetchResult = commandUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git fetch"},
                             null, new File(desPath), 10 * 1000);
                 } catch (Exception e) {
                     log.error(null, e);
                     throw new AppException(ErrorCodes.GIT_FETCH_ERROR);
                 }
-                log.info(fetchResult);
                 // 获取diff信息
                 String result = null;
                 if (fetchResult != null) {
-                     result = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
+                     result = commandUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git diff origin/main"},
                             null, new File(desPath), 100 * 1000);
                 }
-                log.info(result);
                 // git pull
-                String pullResult = FuncUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
+                String pullResult = commandUtil.runCommandThrowException(new String[]{"/bin/sh", "-c", "git pull"},
                         null, new File(desPath), 100 * 1000);
 //              log.info(pullResult);
                 // 匹配diff信息中的md文件，保存在mdFileSet中
@@ -292,8 +293,8 @@ public class SyncGitHandler {
                         });
                     }
                 } else {
-                    // 不需要更新，更新失败
-                    throw new AppException(ErrorCodes.UPDATE_ERROR);
+                    // 不需要更新
+                    log.error("Already up to date.");
                 }
             }
             operlogService.addLog(null, null, new Date(), null, category, "update project " + url,

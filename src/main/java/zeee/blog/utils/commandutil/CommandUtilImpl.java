@@ -1,7 +1,8 @@
-package zeee.blog.utils;
+package zeee.blog.utils.commandutil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import zeee.blog.common.ErrorStreamHandlerThread;
 import zeee.blog.exception.AppException;
 import zeee.blog.exception.ErrorCodes;
@@ -10,29 +11,28 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 /**
- * @author ：wz
- * @date ：Created in 2022/5/11 19:53
- * @description：工具类
+ * @author wz
+ * @date 2022/8/24
  */
-public class FuncUtil {
+@Service("commandUtil")
+public class CommandUtilImpl implements CommandUtil {
 
-    private static Logger log = LoggerFactory.getLogger(FuncUtil.class);
 
+    private static final Logger log = LoggerFactory.getLogger(CommandUtilImpl.class);
     /**
      * 在本地运行一个命令
-     * @param command 命令行
-     * @param evps 环境
-     * @param dir  目录
+     *
+     * @param command    命令行
+     * @param evps       环境
+     * @param dir        目录
      * @param timeOutMax 最大的超时时长，单位ms
      * @return 结果
      */
-    public static String runCommandThrowException(String[] command, String[] evps, File dir, int timeOutMax) {
+    @Override
+    public String runCommandThrowException(String[] command, String[] evps, File dir, int timeOutMax) {
         String outString = null;
         // 创建一个新的进程
         BufferedReader outResult = null;
@@ -43,7 +43,6 @@ public class FuncUtil {
 //            if (command.length > 2 && "-c".equals(command[1])) {
 //                command[2] = "sudo -E" + command[2];
 //            }
-            log.info("runCommandThrowException" + Arrays.toString(command));
             cmProcess = Runtime.getRuntime().exec(command, evps, dir);
             outResult = new BufferedReader(new InputStreamReader(cmProcess.getInputStream()));
             errorStreamHandlerThread = new ErrorStreamHandlerThread(cmProcess);
@@ -123,20 +122,5 @@ public class FuncUtil {
         return outString;
     }
 
-    /**
-     * 获取指定时间的毫秒数
-     * @param time 指定时间
-     * @return 毫秒数
-     */
-    public static long getTimeMillis(String time) {
-        try {
-            DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
-            DateFormat dayFormat = new SimpleDateFormat("yy-MM-dd");
-            Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
-            return curDate.getTime();
-        } catch(Exception e) {
-            log.error("getTimeMillis error", e);
-        }
-        return 0;
-    }
+
 }

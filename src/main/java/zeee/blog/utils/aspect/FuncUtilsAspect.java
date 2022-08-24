@@ -18,11 +18,11 @@ import java.util.UUID;
  */
 @Aspect
 @Component
-public class FuncUtilAspect {
+public class FuncUtilsAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(FuncUtilAspect.class);
+    private static final Logger log = LoggerFactory.getLogger(FuncUtilsAspect.class);
 
-    @Pointcut("execution(public * zeee.blog.utils.FuncUtil.runCommandThrowException(..))")
+    @Pointcut("execution(public * zeee.blog.utils.commandutil.CommandUtilImpl.runCommandThrowException(..))")
     public void log() {
     }
 
@@ -43,7 +43,7 @@ public class FuncUtilAspect {
                 log.info(String.format("RunCommand[%s]: %s", logId, sb));
             }
             Object result = joinPoint.proceed();
-            log.info(String.format("RunCommand[%s]: Result: %s\n, time: %d", logId, JsonUtil.objectToJsonString(result),
+            log.info(String.format("RunCommand[%s]: Result: %s\n, time: %dms", logId, JsonUtil.objectToJsonString(result),
                     System.currentTimeMillis() - startTime));
             return result;
         } catch (Throwable e) {
