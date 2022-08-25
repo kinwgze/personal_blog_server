@@ -73,7 +73,7 @@ public class LogAspect {
             if (result != null) {
                 resp = JsonUtil.objectToJsonString(result);
             }
-            String respLog = String.format("response[%s]: url: %s , method: %s , status: %d , use: %d ms%n",
+            String respLog = String.format("response[%s]: url: %s , method: %s , status: %d , use: %d ms",
                     data.getId(), data.getUrl(), data.getMethod(), response == null ? -1 : response.getStatus(),
                     System.currentTimeMillis() - data.getStartTime());
             log.info(respLog);
