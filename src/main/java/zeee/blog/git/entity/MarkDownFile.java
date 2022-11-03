@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @date ：Created in 2022/5/23 20:00
  * @description：md结尾的文件
  */
+@Data
 @TableName("TBL_MARKDOWN_FILE")
 public class MarkDownFile implements Serializable {
 
@@ -58,59 +60,4 @@ public class MarkDownFile implements Serializable {
     @TableField("category")
     private Integer category;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getSourceFilePath() {
-        return sourceFilePath;
-    }
-
-    public void setSourceFilePath(String sourceFilePath) {
-        this.sourceFilePath = sourceFilePath;
-    }
-
-    public String getMdFile() {
-        return mdFile;
-    }
-
-    public void setMdFile(String mdFile) {
-        this.mdFile = mdFile;
-    }
-
-    public String getHtmlFile() {
-        return htmlFile;
-    }
-
-    public void setHtmlFile(String htmlFile) {
-        this.htmlFile = htmlFile;
-    }
-
-    public Integer getCategory() {
-        return category;
-    }
-
-    public void setCategory(Integer category) {
-        this.category = category;
-    }
 }
