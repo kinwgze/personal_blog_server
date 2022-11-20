@@ -1,8 +1,8 @@
-package zeee.blog.operlog.service;
+package zeee.blog.common.operlog.service;
 
 import org.springframework.stereotype.Service;
-import zeee.blog.operlog.dao.OperlogDO;
-import zeee.blog.operlog.entity.OperationLog;
+import zeee.blog.common.operlog.dao.OperlogDO;
+import zeee.blog.common.operlog.entity.OperationLog;
 
 import javax.annotation.Resource;
 import java.util.Date;

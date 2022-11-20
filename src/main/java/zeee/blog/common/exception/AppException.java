@@ -1,4 +1,4 @@
-package zeee.blog.exception;
+package zeee.blog.common.exception;
 
 import org.apache.tomcat.util.res.StringManager;
 

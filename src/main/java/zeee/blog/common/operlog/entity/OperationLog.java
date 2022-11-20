@@ -1,4 +1,4 @@
-package zeee.blog.operlog.entity;
+package zeee.blog.common.operlog.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

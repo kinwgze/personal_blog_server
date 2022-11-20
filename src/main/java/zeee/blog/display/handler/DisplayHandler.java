@@ -7,14 +7,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.display.service.DisplayService;
-import zeee.blog.operlog.service.OperlogService;
+import zeee.blog.common.operlog.service.OperlogService;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
-import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
-import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
+import static zeee.blog.common.operlog.entity.OperationLog.RESULT_FAILURE;
+import static zeee.blog.common.operlog.entity.OperationLog.RESULT_SUCCESS;
 
 
 /**

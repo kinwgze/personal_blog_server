@@ -4,8 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import zeee.blog.exception.AppException;
-import zeee.blog.exception.ErrorCodes;
+import zeee.blog.common.exception.AppException;
+import zeee.blog.common.exception.ErrorCodes;
 import zeee.blog.utils.commandutil.CommandUtil;
 
 import javax.annotation.Resource;

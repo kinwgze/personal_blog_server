@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import zeee.blog.common.loghttp.LogHttp;
 import zeee.blog.git.handler.SyncGitHandler;
-import zeee.blog.operlog.service.OperlogService;
-import zeee.blog.rpc.RpcResult;
+import zeee.blog.common.operlog.service.OperlogService;
+import zeee.blog.common.rpc.RpcResult;
 import zeee.blog.utils.commandutil.CommandUtil;
 
 import javax.annotation.Resource;
 import java.io.File;
 
-import static zeee.blog.operlog.entity.OperationLog.RESULT_FAILURE;
-import static zeee.blog.operlog.entity.OperationLog.RESULT_SUCCESS;
+import static zeee.blog.common.operlog.entity.OperationLog.RESULT_FAILURE;
+import static zeee.blog.common.operlog.entity.OperationLog.RESULT_SUCCESS;
 
 /**
  * @author ：wz

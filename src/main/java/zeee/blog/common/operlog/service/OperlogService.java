@@ -1,4 +1,4 @@
-package zeee.blog.operlog.service;
+package zeee.blog.common.operlog.service;
 
 import java.util.Date;
 

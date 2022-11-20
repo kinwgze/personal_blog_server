@@ -1,4 +1,4 @@
-package zeee.blog.rpc;
+package zeee.blog.common.rpc;
 
 /**
  * @author ：wz
