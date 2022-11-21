@@ -2,6 +2,7 @@ package zeee.blog.display.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import java.util.List;
  * @author wz
  * @date 2022/8/3
  */
-@Api("展示")
+@Api(tags = "博客文章信息展示")
 @RestController
 @RequestMapping("/blog/display")
 public class DisplayController {
@@ -33,8 +34,8 @@ public class DisplayController {
 
 
     @LogHttp
-    @ApiOperation("通过类别获取文章列表")
-    @ApiImplicitParam(name = "category", value = "文章类别", dataType = "int")
+    @ApiOperation("通过类别获取博客文章列表")
+    @ApiImplicitParam(name = "category", value = "文章类别", required = true, dataType = "int")
     @RequestMapping(value = "getNameListByCategory/{category}", method = RequestMethod.GET)
     public RpcResult<List<MdNamePathVO>> getNameListByCategory(@PathVariable(value = "category") Integer category) {
         RpcResult<List<MdNamePathVO>> result = new RpcResult<>();
@@ -44,6 +45,11 @@ public class DisplayController {
     }
 
     @LogHttp
+    @ApiOperation("获取博客文章内容")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "filePath", value = "文章路径", required = true, dataType = "string"),
+            @ApiImplicitParam(name = "category", value = "文章类别", required = true, dataType = "int")
+    })
     @RequestMapping(value = "getMarkdownContent", method = RequestMethod.GET)
     public RpcResult<String> getMarkdownContent(@RequestParam(value = "filePath") String filePath,
                                                 @RequestParam(value = "category") Integer category) {
