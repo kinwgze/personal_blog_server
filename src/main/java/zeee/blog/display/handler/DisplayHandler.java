@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import zeee.blog.display.entity.MdNamePathVO;
-import zeee.blog.display.service.DisplayService;
+import zeee.blog.display.dao.DisplayDao;
 import zeee.blog.common.operlog.service.OperlogService;
 
 import javax.annotation.Resource;
@@ -21,13 +21,13 @@ import static zeee.blog.common.operlog.entity.OperationLog.RESULT_SUCCESS;
  * @author wz
  * @date 2022/8/4
  */
-@Service("DisplayHandler")
+@Service("displayHandler")
 public class DisplayHandler {
 
     /**
      * 日志记录对象
      */
-    private final Logger log = LoggerFactory.getLogger(DisplayHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(DisplayHandler.class);
 
     /**
      * 需要注入redis模板
@@ -44,7 +44,7 @@ public class DisplayHandler {
 //    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
-    private DisplayService displayService;
+    private DisplayDao displayService;
 
     @Resource
     private OperlogService operlogService;

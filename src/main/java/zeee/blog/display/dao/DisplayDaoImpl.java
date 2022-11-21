@@ -1,25 +1,24 @@
-package zeee.blog.display.service;
+package zeee.blog.display.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import zeee.blog.display.entity.MdNamePathVO;
-import zeee.blog.git.dao.MarkDownFileDO;
+import zeee.blog.git.mapper.MarkDownFileMapper;
 import zeee.blog.git.entity.MarkDownFile;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author wz
  * @date 2022/8/9
  */
-@Service("DisplayService")
-public class DisplayServiceImpl implements DisplayService{
+@Service("displayService")
+public class DisplayDaoImpl implements DisplayDao {
 
     @Resource
-    private MarkDownFileDO markDownFileDO;
+    private MarkDownFileMapper markDownFileMapper;
 
     /**
      * 查询文件名称列表
@@ -31,7 +30,7 @@ public class DisplayServiceImpl implements DisplayService{
     public List<MdNamePathVO> queryNameAndPathListByCategory(Integer category) {
         QueryWrapper<MarkDownFile> wrapper = new QueryWrapper<>();
         wrapper.eq("category", category).select("title", "source_file_path");
-        List<MarkDownFile> files = markDownFileDO.selectList(wrapper);
+        List<MarkDownFile> files = markDownFileMapper.selectList(wrapper);
         List<MdNamePathVO> result = new ArrayList<>();
         for (MarkDownFile file : files) {
             MdNamePathVO mdNamePathVO = new MdNamePathVO();
@@ -53,7 +52,7 @@ public class DisplayServiceImpl implements DisplayService{
         Map<String, Object> map = new HashMap<>(2);
         map.put("category",category);
         map.put("source_file_path", filePath);
-        List<MarkDownFile> files = markDownFileDO.selectByMap(map);
+        List<MarkDownFile> files = markDownFileMapper.selectByMap(map);
         if (CollectionUtils.isNotEmpty(files)) {
             return files.get(0).getMdFile();
         }

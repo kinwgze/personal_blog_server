@@ -14,7 +14,7 @@ import zeee.blog.display.entity.MdNamePathVO;
 import zeee.blog.common.exception.AppException;
 import zeee.blog.common.exception.ErrorCodes;
 import zeee.blog.git.entity.MarkDownFile;
-import zeee.blog.git.service.MarkDownFileService;
+import zeee.blog.git.dao.MarkDownFileDao;
 import zeee.blog.git.utils.SyncBlogUtil;
 import zeee.blog.common.operlog.service.OperlogService;
 import zeee.blog.utils.commandutil.CommandUtil;
@@ -41,7 +41,7 @@ import static zeee.blog.common.operlog.entity.OperationLog.RESULT_SUCCESS;
  * @date ：Created in 2022/5/6 20:11
  * @description：
  */
-@Service("SyncGitHandler")
+@Service("syncGitHandler")
 public class SyncGitHandler {
 
     public static final int BUILD_WEBSITE_FROM_ZERO = 0;
@@ -54,7 +54,7 @@ public class SyncGitHandler {
     private OperlogService operlogService;
 
     @Resource
-    private MarkDownFileService mdFileService;
+    private MarkDownFileDao mdFileService;
 
     @Resource
     private CommandUtil commandUtil;
@@ -75,7 +75,7 @@ public class SyncGitHandler {
     /**
      * 日志记录实体
      */
-    private static Logger log = LoggerFactory.getLogger(SyncGitHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(SyncGitHandler.class);
 
 
     /**
