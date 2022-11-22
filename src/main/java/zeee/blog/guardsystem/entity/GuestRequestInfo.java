@@ -23,12 +23,12 @@ public class GuestRequestInfo implements Serializable {
     /**
      * 手机号
      */
-    private String phoneName;
+    private String phoneNumber;
 
     /**
      * 所申请的日期
      */
-    private String startTime;
+    private long startTime;
 
     /**
      * 备注

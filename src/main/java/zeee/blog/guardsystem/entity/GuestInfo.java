@@ -33,26 +33,26 @@ public class GuestInfo implements Serializable {
     /**
      * 用户手机号
      */
-    @TableField("phone_name")
-    private String phoneName;
+    @TableField("phone_number")
+    private String phoneNumber;
 
     /**
      * 申请的提交时间
      */
     @TableField("commit_time")
-    private String commitTime;
+    private long commitTime;
 
     /**
      * 准许进入时间
      */
     @TableField("start_time")
-    private String startTime;
+    private long startTime;
 
     /**
      * 准许的结束时间
      */
     @TableField("end_time")
-    private String endTime;
+    private long endTime;
 
     /**
      * 事件UUID
