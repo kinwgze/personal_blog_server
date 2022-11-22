@@ -1,6 +1,7 @@
 package zeee.blog.guardsystem.handler;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class GuardSystemHandler {
     @Resource
     private GuestInfoDao guestInfoDao;
 
-    public void addGuestRequest(GuestRequestInfo requestInfo) {
+    public String addGuestRequest(GuestRequestInfo requestInfo) {
         GuestInfo guestInfo = new GuestInfo();
         guestInfo.setUserName(requestInfo.getGuestName());
         guestInfo.setPhoneNumber(requestInfo.getPhoneNumber());
@@ -40,12 +41,22 @@ public class GuardSystemHandler {
         } else {
             guestInfo.setEndTime(endTime);
         }
-        guestInfo.setUuid(IdUtil.simpleUUID());
+        // uuid是唯一的。该方法生成的是不带-的字符串，类似于：b17f24ff026d40949c85a24f4f375d42，此处只取前六位作为校验码
+        String checkCode = IdUtil.simpleUUID().substring(0 ,6);
+        guestInfo.setCheckCode(checkCode);
+        // 生成 访客名-手机号-校验码 格式的字符串，使用sm4加密后的字符串作为uuid
+        String uuidTmp = StrUtil.format("{}-{}-{}", requestInfo.getGuestName(), requestInfo.getPhoneNumber(), checkCode);
+        String uuid = null;
         try {
-            String checkCode = Sm4Util.encryptDataEcb(requestInfo.getGuestName() + requestInfo.getPhoneNumber());
+            uuid = Sm4Util.encryptDataEcb(uuidTmp);
         } catch (Exception e) {
+            log.error("encrypt uuid error", e);
             throw new RuntimeException(e);
         }
-//        guestInfo.setCheckCode();
+        guestInfo.setUuid(uuid);
+        guestInfo.setNotes(requestInfo.getNote());
+        // 插入数据库
+        guestInfoDao.insert(guestInfo);
+        return guestInfo.getUuid();
     }
 }

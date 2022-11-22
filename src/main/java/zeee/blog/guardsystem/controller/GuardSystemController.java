@@ -29,15 +29,14 @@ public class GuardSystemController {
     @ApiOperation(value = "访客申请入口")
     @ApiImplicitParam(name = "guestRequestInfo", value = "访客申请信息", required = true, dataType = "GuestRequestInfo")
     @RequestMapping(value = "requestForPermit", method = RequestMethod.POST)
-    public RpcResult<Boolean> requestForPermit(@RequestBody GuestRequestInfo guestRequestInfo) {
-        RpcResult<Boolean> res = new RpcResult<>();
-        // 处理方法
+    public RpcResult<String> requestForPermit(@RequestBody GuestRequestInfo guestRequestInfo) {
+        RpcResult<String> res = new RpcResult<>();
         try {
-            guardSystemHandler.addGuestRequest(guestRequestInfo);
-            res.setData(true);
+            String uuid = guardSystemHandler.addGuestRequest(guestRequestInfo);
+            res.setData(uuid);
             res.setState(StateResult.SUCCESS);
         } catch (AppException ae) {
-            res.setData(false);
+            res.setData(null);
             res.setState(StateResult.FAILURE);
             res.setFailureMessage(ae.getMessage());
         }
