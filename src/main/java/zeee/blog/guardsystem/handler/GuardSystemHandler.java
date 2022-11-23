@@ -34,6 +34,7 @@ public class GuardSystemHandler {
         guestInfo.setCommitTime(System.currentTimeMillis());
         guestInfo.setStartTime(requestInfo.getStartTime());
         // 准许的时间为申请时间到当天晚上20：00：00
+        // 这里有个bug，目前只能拿到申请当天的，应该是允许页面选择日期
         long endTime = TimeUtil.getTimestamp("20:00:00");
         if (endTime < requestInfo.getStartTime()) {
             log.error("request time error: " + requestInfo.getStartTime());
