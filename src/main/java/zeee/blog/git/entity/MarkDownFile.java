@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @description：md结尾的文件
  */
 @Data
-@TableName("TBL_MARKDOWN_FILE")
+@TableName("markdown_file")
 public class MarkDownFile implements Serializable {
 
     private static final long serialVersionUID = -8672828564157030914L;

@@ -15,7 +15,7 @@ import java.util.Date;
  * @description：操作日志实体
  */
 @Data
-@TableName("TBL_OPERLOG")
+@TableName("operlog")
 public class OperationLog implements Serializable {
 
     public static final Integer RESULT_SUCCESS = 0;

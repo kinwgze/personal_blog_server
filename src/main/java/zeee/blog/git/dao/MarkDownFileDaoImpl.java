@@ -27,16 +27,16 @@ public class MarkDownFileDaoImpl implements MarkDownFileDao {
 
     @Override
     public void updateBySourceFilePath(MarkDownFile markDownFile) {
-        QueryWrapper<MarkDownFile> wapper = new QueryWrapper<>();
-        wapper.eq("source_file_path", markDownFile.getSourceFilePath());
-        markDownFileMapper.update(markDownFile, wapper);
+        QueryWrapper<MarkDownFile> wrapper = new QueryWrapper<>();
+        wrapper.eq("source_file_path", markDownFile.getSourceFilePath());
+        markDownFileMapper.update(markDownFile, wrapper);
     }
 
     @Override
     public List<MarkDownFile> selectByCategory(Integer category) {
         //首先构造QueryWrapper来进行条件的添加
         QueryWrapper<MarkDownFile> wrapper = new QueryWrapper<>();
-        wrapper.eq("category",0);
+        wrapper.eq("category", category);
         return markDownFileMapper.selectList(wrapper);
     }
 }

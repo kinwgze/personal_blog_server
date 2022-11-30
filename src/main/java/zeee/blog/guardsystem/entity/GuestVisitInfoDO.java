@@ -13,8 +13,8 @@ import java.io.Serializable;
  * @date 2022/11/20 19:16
  */
 @Data
-@TableName("TBL_GUEST_INFO")
-public class GuestInfo implements Serializable {
+@TableName("guest_visit_info")
+public class GuestVisitInfoDO implements Serializable {
 
     private static final long serialVersionUID = 6262071575153530517L;
 
@@ -25,10 +25,10 @@ public class GuestInfo implements Serializable {
     private Long id;
 
     /**
-     * 用户名称
+     * 用户名
      */
-    @TableField("user_name")
-    private String userName;
+    @TableField("guest_name")
+    private String guestName;
 
     /**
      * 用户手机号
@@ -40,22 +40,22 @@ public class GuestInfo implements Serializable {
      * 申请的提交时间
      */
     @TableField("commit_time")
-    private long commitTime;
+    private Long commitTime;
 
     /**
      * 准许进入时间
      */
     @TableField("start_time")
-    private long startTime;
+    private Long startTime;
 
     /**
      * 准许的结束时间
      */
     @TableField("end_time")
-    private long endTime;
+    private Long endTime;
 
     /**
-     * 事件UUID
+     * 事件UUID，唯一
      */
     @TableField("uuid")
     private String uuid;

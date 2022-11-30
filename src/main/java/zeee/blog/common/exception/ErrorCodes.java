@@ -33,6 +33,9 @@ public class ErrorCodes {
     /** 执行命令超时 */
     public static final int TIME_OUT = 25;
 
+    /** sm4加密错误 */
+    public static final int SM4_ENCRYPT_ERROR = 30;
+
     // ===================访客系统错误码==================
     /** 申请时间错误 */
     public static final int REQUEST_TIME_ERROR = 101;

@@ -18,14 +18,14 @@ public class TimeUtil {
 
     /**
      * 获取当天指定时间（时分秒）的时间戳
+     * @param day 指定天，格式：yy-MM-dd
      * @param time 指定时间，格式：HH:mm:ss
      * @return 时间戳
      */
-    public static long getTimestamp(String time) {
+    public static long getTimestamp(String day, String time) {
         try {
             DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
-            DateFormat dayFormat = new SimpleDateFormat("yy-MM-dd");
-            Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
+            Date curDate = dateFormat.parse(day + " " + time);
             return curDate.getTime();
         } catch(Exception e) {
             log.error("getTimeMillis error", e);
