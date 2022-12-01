@@ -40,6 +40,9 @@ public class ErrorCodes {
     /** 申请时间错误 */
     public static final int REQUEST_TIME_ERROR = 101;
 
+    /** 处理信息错误 */
+    public static final int ADD_GUEST_VISIT_INFO_ERRRO = 102;
+
     /**
      * 根据错误码，返回对应的错误信息
      * @param errorCode 错误码

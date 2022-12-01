@@ -2,6 +2,7 @@ package zeee.blog.guardsystem.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import zeee.blog.common.exception.AppException;
@@ -10,6 +11,7 @@ import zeee.blog.common.rpc.RpcResult;
 import zeee.blog.common.rpc.StateResult;
 import zeee.blog.guardsystem.entity.GuestRequestInfo;
 import zeee.blog.guardsystem.entity.GuestResponseVO;
+import zeee.blog.guardsystem.entity.GuestVisitInfoDO;
 import zeee.blog.guardsystem.handler.GuardSystemHandler;
 
 import javax.annotation.Resource;
@@ -46,10 +48,15 @@ public class GuardSystemController {
 
     @LogHttp
     @ApiOperation(value = "查询申请信息")
-    @ApiImplicitParam(name = "checkCode", value = "校验码", required = true, dataType = "string")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "phoneNumber", value = "手机号", required = true, dataType = "string"),
+            @ApiImplicitParam(name = "checkCode", value = "校验码", required = true, dataType = "string")
+    })
     @RequestMapping(value = "queryRequestInfo", method = RequestMethod.GET)
-    public RpcResult<Boolean> queryRequestInfo(String checkCode) {
+    public RpcResult<Boolean> queryRequestInfo(String phoneNumber, String checkCode) {
         RpcResult<Boolean> res = new RpcResult<>();
+        checkCode = checkCode.toLowerCase();
+        GuestVisitInfoDO guestVisitInfoDO = guardSystemHandler.checkGuestVisitInfo(phoneNumber, checkCode);
 
         return res;
     }

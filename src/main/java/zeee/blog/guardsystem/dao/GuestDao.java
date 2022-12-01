@@ -1,6 +1,5 @@
 package zeee.blog.guardsystem.dao;
 
-import zeee.blog.guardsystem.entity.GuardConstants;
 import zeee.blog.guardsystem.entity.GuestDO;
 
 import java.util.List;
@@ -29,4 +28,5 @@ public interface GuestDao {
      * @param guestDO 访客信息
      */
     void updateById(GuestDO guestDO);
+
 }

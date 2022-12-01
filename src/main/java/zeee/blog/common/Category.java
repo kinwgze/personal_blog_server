@@ -7,5 +7,9 @@ package zeee.blog.common;
  */
 public class Category {
 
-    public static final Integer GIT = 30;
+    /** git操作 */
+    public static final int GIT = 30;
+
+    /** 访客系统操作 */
+    public static final int GUARD = 100;
 }

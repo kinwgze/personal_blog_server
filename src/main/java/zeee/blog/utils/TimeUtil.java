@@ -11,6 +11,8 @@ import java.util.Date;
 /**
  * @author wz
  * @date 2022/8/24
+ *
+ * 注意：此类里面的所有方法使用的时间戳都是以**毫秒**为单位！！！
  */
 public class TimeUtil {
 
@@ -18,19 +20,19 @@ public class TimeUtil {
 
     /**
      * 获取当天指定时间（时分秒）的时间戳
-     * @param day 指定天，格式：yy-MM-dd
+     * @param day 指定天，格式：yyyy-MM-dd
      * @param time 指定时间，格式：HH:mm:ss
      * @return 时间戳
      */
-    public static long getTimestamp(String day, String time) {
+    public static String getTimestamp(String day, String time) {
         try {
-            DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date curDate = dateFormat.parse(day + " " + time);
-            return curDate.getTime();
+            return String.valueOf(curDate.getTime());
         } catch(Exception e) {
             log.error("getTimeMillis error", e);
         }
-        return 0;
+        return null;
     }
 
     /**

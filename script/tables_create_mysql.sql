@@ -10,8 +10,7 @@ CREATE TABLE operlog (
      category int NULL,
      description text NULL,
      result int NULL,
-     failure_reason text NULL,
-     PRIMARY KEY (id)
+     failure_reason text NULL
 );
 
 CREATE TABLE markdown_file (
@@ -21,8 +20,7 @@ CREATE TABLE markdown_file (
     source_file_path varchar(256) NULL,
     md_file text NULL,
     html_file text NULL,
-    category INT NULL,
-    PRIMARY KEY (id)
+    category INT NULL
 );
 
 CREATE TABLE guest_visit_info (

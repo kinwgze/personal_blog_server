@@ -1,17 +1,18 @@
 package zeee.blog.guardsystem.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.stereotype.Service;
 import zeee.blog.guardsystem.entity.GuestDO;
 import zeee.blog.guardsystem.mapper.GuestMapper;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
 import java.util.List;
 
 /**
  * @author wz
  * @date 2022/11/30
  */
+@Service("guestDao")
 public class GuestDaoImpl implements GuestDao{
 
     @Resource
