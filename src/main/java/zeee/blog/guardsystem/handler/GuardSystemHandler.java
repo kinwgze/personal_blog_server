@@ -1,7 +1,10 @@
 package zeee.blog.guardsystem.handler;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import zeee.blog.guardsystem.dao.GuestDao;
 import zeee.blog.guardsystem.dao.GuestVisitInfoDao;
 import zeee.blog.guardsystem.entity.*;
 import zeee.blog.utils.Sm4Util;
+import zeee.blog.utils.SortUtil;
 import zeee.blog.utils.TimeUtil;
 
 import javax.annotation.Resource;
@@ -73,17 +77,19 @@ public class GuardSystemHandler {
             guestVisitInfoDO = new GuestVisitInfoDO();
             guestVisitInfoDO.setGuestName(requestInfo.getGuestName());
             guestVisitInfoDO.setPhoneNumber(requestInfo.getPhoneNumber());
-            guestVisitInfoDO.setCommitTime(String.valueOf(System.currentTimeMillis()));
+            guestVisitInfoDO.setCommitTime(System.currentTimeMillis());
             guestVisitInfoDO.setStartTime(requestInfo.getStartTime());
+            //先把时间转换为Date，然后再转换为对应天数
+            Date startDate = new Date(requestInfo.getStartTime());
+            String dayDate = DateUtil.formatDate(startDate);
             // 准许的时间为申请时间到当天晚上20：00：00
-            String time = TimeUtil.covertTimestamp2Date(requestInfo.getStartTime()).split(" ")[0];
-            String endTime = TimeUtil.getTimestamp(time, GuardConstants.END_TIME);
-            // 这里有问题，需要用sortUtil比较
-            if (endTime < requestInfo.getStartTime()) {
+            Long endTime = TimeUtil.getTimestamp(dayDate, GuardConstants.END_TIME);
+            // 如果结束时间小于开始时间
+            if (endTime != null && requestInfo.getStartTime() < endTime) {
                 log.error("request time error: " + requestInfo.getStartTime());
                 throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
             } else {
-                guestVisitInfoDO.setEndTime(String.valueOf(endTime));
+                guestVisitInfoDO.setEndTime(endTime);
             }
             // uuid是唯一的。该方法生成的是不带-的字符串，类似于：b17f24ff026d40949c85a24f4f375d42，此处只取前六位作为校验码
             String checkCode = IdUtil.simpleUUID().substring(0, 6);

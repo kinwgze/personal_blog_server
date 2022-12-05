@@ -40,19 +40,19 @@ public class GuestVisitInfoDO implements Serializable {
      * 申请的提交时间
      */
     @TableField("commit_time")
-    private String commitTime;
+    private Long commitTime;
 
     /**
      * 准许进入时间
      */
     @TableField("start_time")
-    private String startTime;
+    private Long startTime;
 
     /**
      * 准许的结束时间
      */
     @TableField("end_time")
-    private String endTime;
+    private Long endTime;
 
     /**
      * 事件UUID，唯一

@@ -24,11 +24,11 @@ public class TimeUtil {
      * @param time 指定时间，格式：HH:mm:ss
      * @return 时间戳
      */
-    public static String getTimestamp(String day, String time) {
+    public static Long getTimestamp(String day, String time) {
         try {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date curDate = dateFormat.parse(day + " " + time);
-            return String.valueOf(curDate.getTime());
+            return curDate.getTime();
         } catch(Exception e) {
             log.error("getTimeMillis error", e);
         }
@@ -40,11 +40,9 @@ public class TimeUtil {
      * @param timestamp 时间戳
      * @return string格式的时间，格式为 yyyy-MM-dd HH:mm:ss
      */
-    public static String covertTimestamp2Date(String timestamp) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static Date covertTimestamp2Date(String timestamp) {
         long time = Long.parseLong(timestamp);
-        Date date = new Date(time);
-        return simpleDateFormat.format(date);
+        return new Date(time);
     }
 
     /**
