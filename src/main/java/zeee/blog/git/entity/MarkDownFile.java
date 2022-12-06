@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author ：wz
@@ -34,7 +35,7 @@ public class MarkDownFile implements Serializable {
      * 最后修改时间
      */
     @TableField("date")
-    private String date;
+    private Date date;
 
     /**
      * 源文件的地址

@@ -1,10 +1,8 @@
 package zeee.blog.guardsystem.handler;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -18,12 +16,9 @@ import zeee.blog.guardsystem.dao.GuestDao;
 import zeee.blog.guardsystem.dao.GuestVisitInfoDao;
 import zeee.blog.guardsystem.entity.*;
 import zeee.blog.utils.Sm4Util;
-import zeee.blog.utils.SortUtil;
 import zeee.blog.utils.TimeUtil;
 
 import javax.annotation.Resource;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static zeee.blog.common.operlog.entity.OperationLog.RESULT_FAILURE;
@@ -47,49 +42,40 @@ public class GuardSystemHandler {
     @Resource
     private OperlogService operlogService;
 
+    /**
+     * 访客访问信息处理，主要包含以下步骤
+     * 1.访问信息处理
+     * 2.访客信息处理
+     * 3.回显信息处理
+     * @param requestInfo
+     * @return
+     */
     public GuestResponseVO addGuestVisitInfo(GuestRequestInfo requestInfo) {
         GuestVisitInfoDO guestVisitInfoDO;
         try {
-            // 判断访客是否是第一次
-            if (StringUtils.isNotEmpty(requestInfo.getPhoneNumber())) {
-                List<GuestDO> guestList = queryGuestByPhoneNumber(requestInfo.getPhoneNumber());
-                if (CollectionUtils.isNotEmpty(guestList)) {
-                    // 如果不是第一次，更新访问次数
-                    for (GuestDO guest : guestList) {
-                        if (guest.getPhoneNumber().equals(requestInfo.getPhoneNumber())
-                                && guest.getName().equals(requestInfo.getGuestName())) {
-                            guest.setStatistics(guest.getStatistics() + 1);
-                            guestDao.updateById(guest);
-                            break;
-                        }
-                    }
-                } else {
-                    // 如果是第一次，信息保存到数据库
-                    GuestDO guest = new GuestDO();
-                    guest.setName(requestInfo.getGuestName());
-                    guest.setPhoneNumber(requestInfo.getPhoneNumber());
-                    guest.setStatistics(1);
-                    guestDao.insert(guest);
-                }
-            }
-
             // 处理访客信息
             guestVisitInfoDO = new GuestVisitInfoDO();
+            // 基本信息填充
             guestVisitInfoDO.setGuestName(requestInfo.getGuestName());
             guestVisitInfoDO.setPhoneNumber(requestInfo.getPhoneNumber());
-            guestVisitInfoDO.setCommitTime(System.currentTimeMillis());
-            guestVisitInfoDO.setStartTime(requestInfo.getStartTime());
+            guestVisitInfoDO.setCommitTime(new Date());
             //先把时间转换为Date，然后再转换为对应天数
-            Date startDate = new Date(requestInfo.getStartTime());
+            Date startDate = new Date(requestInfo.getStartTimeStamp());
+            guestVisitInfoDO.setStartTime(startDate);
             String dayDate = DateUtil.formatDate(startDate);
             // 准许的时间为申请时间到当天晚上20：00：00
             Long endTime = TimeUtil.getTimestamp(dayDate, GuardConstants.END_TIME);
             // 如果结束时间小于开始时间
-            if (endTime != null && requestInfo.getStartTime() < endTime) {
-                log.error("request time error: " + requestInfo.getStartTime());
-                throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
+            if (Objects.nonNull(endTime)) {
+                if (requestInfo.getStartTimeStamp() < endTime) {
+                    log.error("request time error: " + requestInfo.getStartTimeStamp());
+                    throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
+                } else {
+                    guestVisitInfoDO.setEndTime(new Date(endTime));
+                }
             } else {
-                guestVisitInfoDO.setEndTime(endTime);
+                log.error("get endTime error");
+                throw new AppException(ErrorCodes.CONVERT_TIME_ERROR);
             }
             // uuid是唯一的。该方法生成的是不带-的字符串，类似于：b17f24ff026d40949c85a24f4f375d42，此处只取前六位作为校验码
             String checkCode = IdUtil.simpleUUID().substring(0, 6);
@@ -108,6 +94,8 @@ public class GuardSystemHandler {
             guestVisitInfoDO.setNotes(requestInfo.getNote());
             // 插入数据库
             guestVisitInfoDao.insert(guestVisitInfoDO);
+            // 处理访客信息，判断是否是第一次访问
+            guestInfoCheck(requestInfo);
             // 返回信息处理
             operlogService.addLog(null, null, new Date(), null, Category.GUARD,
                     "添加访客访问信息成功", RESULT_SUCCESS, null);
@@ -124,6 +112,44 @@ public class GuardSystemHandler {
         }
     }
 
+    /**
+     * 处理访客信息，判断是否是第一次访问
+     * @param requestInfo 访问信息
+     */
+    private void guestInfoCheck(GuestRequestInfo requestInfo) {
+        try {
+            // 判断访客是否是第一次
+            if (StringUtils.isNotEmpty(requestInfo.getPhoneNumber())) {
+                List<GuestDO> guestList = queryGuestByPhoneNumber(requestInfo.getPhoneNumber());
+                if (CollectionUtils.isNotEmpty(guestList)) {
+                    // 如果不是第一次，更新访问次数
+                    for (GuestDO guest : guestList) {
+                        if (guest.getPhoneNumber().equals(requestInfo.getPhoneNumber())
+                                && guest.getName().equals(requestInfo.getGuestName())) {
+                            guest.setStatistics(guest.getStatistics() + 1);
+                            guestDao.updateById(guest);
+                            break;
+                        }
+                    }
+                } else {
+                    // 如果是第一次，访客信息保存到数据库
+                    GuestDO guest = new GuestDO();
+                    guest.setName(requestInfo.getGuestName());
+                    guest.setPhoneNumber(requestInfo.getPhoneNumber());
+                    guest.setStatistics(1);
+                    guestDao.insert(guest);
+                }
+            }
+        } catch (Exception e) {
+            throw new AppException(ErrorCodes.GUEST_INFO_ERROR);
+        }
+    }
+
+    /**
+     * 通过手机号，查询访客信息
+     * @param phoneNumber 手机号
+     * @return 访客信息，List形式
+     */
     private List<GuestDO> queryGuestByPhoneNumber(String phoneNumber) {
         List<GuestDO> guestList = guestDao.queryGuestByPhoneNumber(phoneNumber);
         if (CollectionUtils.isNotEmpty(guestList)) {
@@ -132,6 +158,12 @@ public class GuardSystemHandler {
         return null;
     }
 
+    /**
+     * 通过手机号和校验码查询访客信息
+     * @param phoneNumber 手机号
+     * @param checkCode 校验码
+     * @return 访客信息，单个
+     */
     public GuestVisitInfoDO checkGuestVisitInfo(String phoneNumber, String checkCode) {
         // 根据手机号和校验码查询visit info
         List<GuestVisitInfoDO> guestVisitInfos =

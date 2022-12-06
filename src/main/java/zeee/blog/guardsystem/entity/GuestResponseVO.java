@@ -36,10 +36,10 @@ public class GuestResponseVO implements Serializable {
     /**
      * 开始时间
      */
-    private Long startTime;
+    private Long startTimeStamp;
 
     /**
      * 结束时间
      */
-    private Long endTime;
+    private Long endTimeStamp;
 }

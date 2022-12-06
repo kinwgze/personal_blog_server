@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author : zeeew
@@ -40,19 +41,19 @@ public class GuestVisitInfoDO implements Serializable {
      * 申请的提交时间
      */
     @TableField("commit_time")
-    private Long commitTime;
+    private Date commitTime;
 
     /**
      * 准许进入时间
      */
     @TableField("start_time")
-    private Long startTime;
+    private Date startTime;
 
     /**
      * 准许的结束时间
      */
     @TableField("end_time")
-    private Long endTime;
+    private Date endTime;
 
     /**
      * 事件UUID，唯一

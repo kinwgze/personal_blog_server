@@ -28,7 +28,7 @@ public class GuestRequestInfo implements Serializable {
     /**
      * 所申请的日期
      */
-    private Long startTime;
+    private Long startTimeStamp;
 
     /**
      * 备注
