@@ -33,4 +33,4 @@ build/
 .vscode/
 /log/
 /src/main/resources/application-db.properties
-/src/main/resources/application-db-localtest.properties.properties
+/src/main/resources/application-db-localtest.properties
