@@ -7,6 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import zeee.blog.common.Category;
 import zeee.blog.common.exception.AppException;
@@ -42,6 +43,9 @@ public class GuardSystemHandler {
     @Resource
     private OperlogService operlogService;
 
+    @Resource
+    private RedisTemplate redisTemplate;
+
     /**
      * 访客访问信息处理，主要包含以下步骤
      * 1.访问信息处理
@@ -63,19 +67,10 @@ public class GuardSystemHandler {
             Date startDate = new Date(requestInfo.getStartTimeStamp());
             guestVisitInfoDO.setStartTime(startDate);
             String dayDate = DateUtil.formatDate(startDate);
-            // 准许的时间为申请时间到当天晚上20：00：00
-            Long endTime = TimeUtil.getTimestamp(dayDate, GuardConstants.END_TIME);
-            // 如果结束时间小于开始时间
-            if (Objects.nonNull(endTime)) {
-                if (requestInfo.getStartTimeStamp() < endTime) {
-                    log.error("request time error: " + requestInfo.getStartTimeStamp());
-                    throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
-                } else {
-                    guestVisitInfoDO.setEndTime(new Date(endTime));
-                }
-            } else {
-                log.error("get endTime error");
-                throw new AppException(ErrorCodes.CONVERT_TIME_ERROR);
+            // 准许的时间为申请时间当天08：00：00-20：00：00
+            Long endTime = checkStartAndEndTime(startDate);
+            if (endTime != null) {
+                guestVisitInfoDO.setEndTime(new Date(endTime));
             }
             // uuid是唯一的。该方法生成的是不带-的字符串，类似于：b17f24ff026d40949c85a24f4f375d42，此处只取前六位作为校验码
             String checkCode = IdUtil.simpleUUID().substring(0, 6);
@@ -94,6 +89,9 @@ public class GuardSystemHandler {
             guestVisitInfoDO.setNotes(requestInfo.getNote());
             // 插入数据库
             guestVisitInfoDao.insert(guestVisitInfoDO);
+            // 插入redis中
+            String key = GuardConstants.GUEST_PREFIX + guestVisitInfoDO.getPhoneNumber();
+            redisTemplate.opsForValue().set(key, guestVisitInfoDO);
             // 处理访客信息，判断是否是第一次访问
             guestInfoCheck(requestInfo);
             // 返回信息处理
@@ -106,10 +104,45 @@ public class GuardSystemHandler {
             guestResponseVO.setUuid(guestVisitInfoDO.getUuid());
             return guestResponseVO;
         } catch (Exception e) {
+            log.error("add guest visit info error", e);
             operlogService.addLog(null, null, new Date(), null, Category.GUARD,
                     "添加访客访问信息失败", RESULT_FAILURE, e.getMessage());
             throw new AppException(ErrorCodes.ADD_GUEST_VISIT_INFO_ERRRO);
         }
+    }
+
+    /**
+     * 判断访问开始时间是否在规定范围内
+     * @param startDate 开始时间
+     * @return 若在，返回结束时间，若不在，抛出异常
+     */
+    private Long checkStartAndEndTime(Date startDate) {
+        String dayDate = DateUtil.formatDate(startDate);
+        Long permitStartTime;
+        Long permitEndTime;
+        try {
+            // 拿到当天的规定时间范围
+            permitStartTime = TimeUtil.getTimestamp(dayDate, GuardConstants.START_TIME);
+            permitEndTime = TimeUtil.getTimestamp(dayDate, GuardConstants.END_TIME);
+        } catch (Exception e) {
+            log.error("get time error", e);
+            throw new AppException(ErrorCodes.CONVERT_TIME_ERROR);
+        }
+        // 开始时间小于规定时间
+        if (Objects.nonNull(permitStartTime) && startDate.getTime() < permitStartTime) {
+            log.error("request time error, start time is: " + startDate);
+            throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
+        }
+        // 如果规定结束时间小于开始时间
+        if (Objects.nonNull(permitEndTime)) {
+            if (permitEndTime < startDate.getTime()) {
+                log.error("request time error, start time is: " + startDate);
+                throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
+            } else {
+               return permitEndTime;
+            }
+        }
+        return null;
     }
 
     /**

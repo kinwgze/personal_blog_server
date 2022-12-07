@@ -14,6 +14,8 @@ import java.util.*;
  */
 public class JsonUtil {
 
+    private JsonUtil() {}
+
     /**
      * Object转JSONString
      */

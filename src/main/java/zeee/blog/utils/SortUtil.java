@@ -11,6 +11,8 @@ public class SortUtil implements Comparator {
 
     public static final Character CHARACTER_ZERO = '0';
 
+    private SortUtil() {}
+
     /**
      * 比较两个字符串的顺序，一般用于混合字符串
      * @return ，a在前时返回-1， b在前时返回1，相等时返回0

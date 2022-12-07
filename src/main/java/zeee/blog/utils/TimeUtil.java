@@ -16,6 +16,8 @@ import java.util.Date;
  */
 public class TimeUtil {
 
+    private TimeUtil() {}
+
     private static final Logger log = LoggerFactory.getLogger(TimeUtil.class);
 
     /**

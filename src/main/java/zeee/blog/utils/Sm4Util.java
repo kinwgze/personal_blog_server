@@ -16,6 +16,9 @@ import java.util.Arrays;
  * @description sm4加密、解密与加密结果验证 可逆算法
  */
 public class Sm4Util {
+
+    private Sm4Util() {}
+
     static {
         Security.addProvider(new BouncyCastleProvider());
     }

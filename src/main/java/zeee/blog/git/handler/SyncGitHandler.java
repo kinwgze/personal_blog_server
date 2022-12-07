@@ -183,8 +183,8 @@ public class SyncGitHandler {
         MarkDownFile mdFile = new MarkDownFile();
         if (StringUtils.isNotEmpty(filePath)) {
             File file = new File(filePath);
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            mdFile.setDate(df.format(new Date(file.lastModified())));
+//            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            mdFile.setDate(new Date(file.lastModified()));
             mdFile.setTitle(file.getName());
             mdFile.setSourceFilePath(file.getPath());
             mdFile.setCategory(category);
