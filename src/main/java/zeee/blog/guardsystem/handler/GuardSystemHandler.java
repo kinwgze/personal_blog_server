@@ -20,7 +20,9 @@ import zeee.blog.utils.Sm4Util;
 import zeee.blog.utils.TimeUtil;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import static zeee.blog.common.operlog.entity.OperationLog.RESULT_FAILURE;
 import static zeee.blog.common.operlog.entity.OperationLog.RESULT_SUCCESS;
@@ -44,7 +46,7 @@ public class GuardSystemHandler {
     private OperlogService operlogService;
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 访客访问信息处理，主要包含以下步骤
