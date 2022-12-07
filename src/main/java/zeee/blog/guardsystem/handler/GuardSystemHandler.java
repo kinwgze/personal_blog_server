@@ -13,6 +13,7 @@ import zeee.blog.common.Category;
 import zeee.blog.common.exception.AppException;
 import zeee.blog.common.exception.ErrorCodes;
 import zeee.blog.common.operlog.service.OperlogService;
+import zeee.blog.common.redis.RedisClient;
 import zeee.blog.guardsystem.dao.GuestDao;
 import zeee.blog.guardsystem.dao.GuestVisitInfoDao;
 import zeee.blog.guardsystem.entity.*;
@@ -46,7 +47,7 @@ public class GuardSystemHandler {
     private OperlogService operlogService;
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisClient redisClient;
 
     /**
      * 访客访问信息处理，主要包含以下步骤
@@ -89,11 +90,9 @@ public class GuardSystemHandler {
             }
             guestVisitInfoDO.setUuid(uuid);
             guestVisitInfoDO.setNotes(requestInfo.getNote());
+
             // 插入数据库
             guestVisitInfoDao.insert(guestVisitInfoDO);
-            // 插入redis中
-            String key = GuardConstants.GUEST_PREFIX + guestVisitInfoDO.getPhoneNumber();
-            redisTemplate.opsForValue().set(key, guestVisitInfoDO);
             // 处理访客信息，判断是否是第一次访问
             guestInfoCheck(requestInfo);
             // 返回信息处理
@@ -163,6 +162,8 @@ public class GuardSystemHandler {
                                 && guest.getName().equals(requestInfo.getGuestName())) {
                             guest.setStatistics(guest.getStatistics() + 1);
                             guestDao.updateById(guest);
+                            // 数据有更新，删除缓存
+                            redisClient.del(requestInfo.getGuestName());
                             break;
                         }
                     }
