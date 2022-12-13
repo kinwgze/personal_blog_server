@@ -7,7 +7,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import zeee.blog.common.Category;
 import zeee.blog.common.exception.AppException;
@@ -54,6 +53,7 @@ public class GuardSystemHandler {
      * 1.访问信息处理
      * 2.访客信息处理
      * 3.回显信息处理
+     *
      * @param requestInfo
      * @return
      */
@@ -66,6 +66,7 @@ public class GuardSystemHandler {
             guestVisitInfoDO.setGuestName(requestInfo.getGuestName());
             guestVisitInfoDO.setPhoneNumber(requestInfo.getPhoneNumber());
             guestVisitInfoDO.setCommitTime(new Date());
+            guestVisitInfoDO.setValidation(true);
             //先把时间转换为Date，然后再转换为对应天数
             Date startDate = new Date(requestInfo.getStartTimeStamp());
             guestVisitInfoDO.setStartTime(startDate);
@@ -113,7 +114,82 @@ public class GuardSystemHandler {
     }
 
     /**
+     * 通过手机号和校验码查询访问信息，用于界面查询信息
+     *
+     * @param phoneNumber 手机号
+     * @param checkCode   校验码
+     * @return 访问信息，单个
+     */
+    public GuestResponseVO queryGuestVisitInfo(String phoneNumber, String checkCode) {
+        // 根据手机号和校验码查询visit info，先尝试在redis里面查询
+        String key = StrUtil.format("{}_{}_{}", GuardConstants.VISIT_PREFIX, phoneNumber, checkCode);
+        GuestResponseVO guestVoFormRedis;
+        Object o = redisClient.get(key);
+        if (Objects.nonNull(o)) {
+            guestVoFormRedis = (GuestResponseVO) o;
+            log.info("query visit info from redis successfully");
+            return guestVoFormRedis;
+        }
+
+        // 如果redis里面没有查到，从数据库查，并写入redis
+        List<GuestVisitInfoDO> guestVisitInfos =
+                guestVisitInfoDao.queryGuestVisitInfoByPhoneNumberAndCheckCode(phoneNumber, checkCode);
+        if (CollectionUtils.isEmpty(guestVisitInfos)) {
+            return null;
+        }
+        // 可能会有多个的情况，返回最新的
+        guestVisitInfos.sort((o1, o2) -> o2.getStartTime().compareTo(o1.getStartTime()));
+        GuestVisitInfoDO info = guestVisitInfos.get(0);
+        if (Objects.nonNull(info)) {
+            log.info("query visit info from database successfully");
+            // 存入redis，key为guest_xxxxx_xxx
+            redisClient.set(key, info, GuardConstants.ONE_DAY_TIME);
+            // 返回VO
+            GuestResponseVO guestVo = new GuestResponseVO();
+            guestVo.setUserName(info.getGuestName());
+            guestVo.setPhoneNumber(info.getPhoneNumber());
+            guestVo.setCheckCode(info.getCheckCode());
+            guestVo.setUuid(info.getUuid());
+            guestVo.setStartTime(info.getStartTime());
+            guestVo.setEndTime(info.getEndTime());
+            return guestVo;
+        } else {
+            return null;
+        }
+
+    }
+
+
+    /**
+     * 检查是否准许进入，如果准许进入，validation置为false，表示visit信息已失效
+     *
+     * @param uuid uuid
+     * @return 是否准许
+     */
+    public boolean checkPermit(String uuid) {
+        // 根据uuid查询visit信息，先从redis里面拿，拿不到再从数据库拿
+        GuestVisitInfoDO info = queryVisitInfoByUuid(uuid);
+        // 拿到信息后，对比时间，只有在准许时间内才能准入
+        Date now = new Date();
+        if (now.before(info.getStartTime()) || now.after(info.getEndTime())) {
+            throw new AppException(ErrorCodes.NOT_IN_PERMIT_TIME);
+        }
+        // 查看validation信息，是否已作废
+        if (!info.getValidation()) {
+            throw new AppException(ErrorCodes.VALIDATION_FALSE);
+        }
+        // 准入后，validation置为false，更新数据库，删除redis中的数据
+        info.setValidation(false);
+        guestVisitInfoDao.update(info);
+        redisClient.del(uuid);
+        return true;
+    }
+
+    /* ==========================private method begin=====================*/
+
+    /**
      * 判断访问开始时间是否在规定范围内
+     *
      * @param startDate 开始时间
      * @return 若在，返回结束时间，若不在，抛出异常
      */
@@ -140,7 +216,7 @@ public class GuardSystemHandler {
                 log.error("request time error, start time is: " + startDate);
                 throw new AppException(ErrorCodes.REQUEST_TIME_ERROR);
             } else {
-               return permitEndTime;
+                return permitEndTime;
             }
         }
         return null;
@@ -148,9 +224,11 @@ public class GuardSystemHandler {
 
     /**
      * 处理访客信息，判断是否是第一次访问
+     *
      * @param requestInfo 访问信息
      */
     private void guestInfoCheck(GuestRequestInfo requestInfo) {
+        String key = StrUtil.format("{}_{}", requestInfo.getGuestName());
         try {
             // 判断访客是否是第一次
             if (StringUtils.isNotEmpty(requestInfo.getPhoneNumber())) {
@@ -163,7 +241,7 @@ public class GuardSystemHandler {
                             guest.setStatistics(guest.getStatistics() + 1);
                             guestDao.updateById(guest);
                             // 数据有更新，删除缓存
-                            redisClient.del(requestInfo.getGuestName());
+                            redisClient.del(key);
                             break;
                         }
                     }
@@ -183,6 +261,7 @@ public class GuardSystemHandler {
 
     /**
      * 通过手机号，查询访客信息
+     *
      * @param phoneNumber 手机号
      * @return 访客信息，List形式
      */
@@ -195,20 +274,20 @@ public class GuardSystemHandler {
     }
 
     /**
-     * 通过手机号和校验码查询访客信息
-     * @param phoneNumber 手机号
-     * @param checkCode 校验码
-     * @return 访客信息，单个
+     * 通过uuid查询visit信息，uuid一般都是唯一，不考虑多个查询结果的情况
+     *
+     * @param uuid uuid
+     * @return visit info
      */
-    public GuestVisitInfoDO checkGuestVisitInfo(String phoneNumber, String checkCode) {
-        // 根据手机号和校验码查询visit info
-        List<GuestVisitInfoDO> guestVisitInfos =
-                guestVisitInfoDao.queryGuestVisitInfoByPhoneNumberAndCheckCode(phoneNumber, checkCode);
-        if (CollectionUtils.isEmpty(guestVisitInfos)) {
-            return null;
+    private GuestVisitInfoDO queryVisitInfoByUuid(String uuid) {
+        // 首先尝试从redis中查询，查询不到，再去数据库中查询
+        GuestVisitInfoDO guestVisitInfoDO = (GuestVisitInfoDO) redisClient.get(uuid);
+        if (Objects.nonNull(guestVisitInfoDO)) {
+            return guestVisitInfoDO;
+        } else {
+            guestVisitInfoDO = guestVisitInfoDao.queryGuestVisitInfoByUuid(uuid);
+            redisClient.set(uuid, guestVisitInfoDO);
+            return guestVisitInfoDO;
         }
-        // 可能会有多个的情况，返回最新的
-        guestVisitInfos.sort((o1, o2) -> o2.getStartTime().compareTo(o1.getStartTime()));
-        return guestVisitInfos.get(0);
     }
 }

@@ -72,4 +72,10 @@ public class GuestVisitInfoDO implements Serializable {
      */
     @TableField("notes")
     private String notes;
+
+    /**
+     * 是否有效，true为有效，false为无效
+     */
+    @TableField("validation")
+    private Boolean validation;
 }

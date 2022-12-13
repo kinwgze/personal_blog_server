@@ -32,6 +32,7 @@ CREATE TABLE guest_visit_info (
     end_time datetime NULL,
     uuid varchar(64) NULL,
     check_code varchar(64) NULL,
+    validation boolean NOT NULL,
     notes text NULL
 );
 

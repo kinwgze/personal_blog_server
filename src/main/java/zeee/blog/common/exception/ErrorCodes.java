@@ -49,6 +49,12 @@ public class ErrorCodes {
     /** 处理访客信息错误 */
     public static final int GUEST_INFO_ERROR = 103;
 
+    /** 不在准许时间内，禁止进入 */
+    public static final int NOT_IN_PERMIT_TIME = 104;
+
+    /** 信息有误，禁止进入 */
+    public static final int VALIDATION_FALSE = 105;
+
 
     /**
      * 根据错误码，返回对应的错误信息

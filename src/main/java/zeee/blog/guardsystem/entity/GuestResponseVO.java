@@ -3,6 +3,7 @@ package zeee.blog.guardsystem.entity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author wz
@@ -36,10 +37,10 @@ public class GuestResponseVO implements Serializable {
     /**
      * 开始时间
      */
-    private Long startTimeStamp;
+    private Date startTime;
 
     /**
      * 结束时间
      */
-    private Long endTimeStamp;
+    private Date endTime;
 }
