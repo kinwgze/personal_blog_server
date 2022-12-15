@@ -1,11 +1,13 @@
 package zeee.blog.utils;
 
+import cn.hutool.core.date.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -64,3 +66,32 @@ public class TimeUtil {
         return 0;
     }
 }
+
+/*
+    */
+/**
+     * 根据日期获取星期
+     *//*
+
+    public static String getWeekOfDate(Date dt) {
+        String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
+        if (w < 0) {
+            w = 0;
+        }
+        // DateUtil.dayOfWeek(new Date());
+        return weekDays[w];
+    }
+*/
+
+    /**
+     * 获取天数差
+     * @param startDate 起始时间
+     * @param endDate 结束时间
+     * @return 时间差
+     */
+// hutoool有封//相差一个月，31天
+//long betweenDay = DateUtil.between(date1, date2, DateUnit.DAY);装
+    //

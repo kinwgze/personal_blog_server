@@ -55,6 +55,12 @@ public class ErrorCodes {
     /** 信息有误，禁止进入 */
     public static final int VALIDATION_FALSE = 105;
 
+    // ===================微信错误码==================
+
+    public static final int API_ERROR = 201;
+
+    public static final int GET_BAIDU_DATA_ERROR = 202;
+
 
     /**
      * 根据错误码，返回对应的错误信息

@@ -132,6 +132,13 @@
             <version>1.69</version>
         </dependency>
 
+        <!--weixin-java-mp-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-mp</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

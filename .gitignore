@@ -34,3 +34,4 @@ build/
 /log/
 /src/main/resources/application-db.properties
 /src/main/resources/application-local.properties
+/src/main/resources/application-weChat.properties
