@@ -20,8 +20,7 @@ public class WeChatController {
     private WeChatService weChatService;
 
     @RequestMapping(value = "test", method = RequestMethod.GET)
-    // TODO 这里有问题，还没调通
     public void test() {
-        weChatService.getMessage();
+        weChatService.pushMessage();
     }
 }

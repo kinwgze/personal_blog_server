@@ -63,6 +63,8 @@ public class ErrorCodes {
 
     public static final int GET_TIAN_DATA_ERROR = 203;
 
+    public static final int PUSH_WECHAT_MESSAGE_ERROR = 203;
+
 
     /**
      * 根据错误码，返回对应的错误信息
