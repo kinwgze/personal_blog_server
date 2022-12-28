@@ -13,8 +13,6 @@ import java.util.List;
  * @date 2022/12/14
  */
 @Data
-@XmlRootElement(name = "result")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class BaiduMapEntity implements Serializable {
 
     private static final long serialVersionUID = -5634832984516941630L;

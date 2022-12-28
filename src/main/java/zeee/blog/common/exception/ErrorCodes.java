@@ -61,6 +61,8 @@ public class ErrorCodes {
 
     public static final int GET_BAIDU_DATA_ERROR = 202;
 
+    public static final int GET_TIAN_DATA_ERROR = 203;
+
 
     /**
      * 根据错误码，返回对应的错误信息

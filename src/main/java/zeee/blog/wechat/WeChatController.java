@@ -21,7 +21,7 @@ public class WeChatController {
 
     @RequestMapping(value = "test", method = RequestMethod.GET)
     // TODO 这里有问题，还没调通
-    public BaiduMapEntity test() {
-        return weChatService.getBaiduData();
+    public void test() {
+        weChatService.getMessage();
     }
 }

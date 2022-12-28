@@ -12,8 +12,6 @@ import java.io.Serializable;
  * @date 2022/12/14
  */
 @Data
-@XmlRootElement(name = "location")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class AddressData implements Serializable {
 
     private static final long serialVersionUID = -434941948396956344L;

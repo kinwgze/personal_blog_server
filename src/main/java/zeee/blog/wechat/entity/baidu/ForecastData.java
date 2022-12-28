@@ -1,5 +1,6 @@
 package zeee.blog.wechat.entity.baidu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,8 +14,6 @@ import java.io.Serializable;
  * @date 2022/12/14
  */
 @Data
-@XmlRootElement(name = "forecast")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class ForecastData implements Serializable {
     private static final long serialVersionUID = -1541656053277660838L;
 
@@ -41,37 +40,37 @@ public class ForecastData implements Serializable {
     /**
      * 白天风力
      */
-    @XmlElement(name = "wc_day")
+    @JsonProperty("wc_day")
     String wcDay;
 
     /**
      * 晚上风力
      */
-    @XmlElement(name = "wc_night")
+    @JsonProperty("wc_night")
     String wcNight;
 
     /**
      * 白天风向
      */
-    @XmlElement(name = "wd_day")
+    @JsonProperty("wd_day")
     String wdDay;
 
     /**
      * 晚上风向
      */
-    @XmlElement(name = "wd_night")
+    @JsonProperty("wd_night")
     String wdNight;
 
     /**
      * 白天天气现象
      */
-    @XmlElement(name = "text_day")
+    @JsonProperty("text_day")
     String textDay;
 
     /**
      * 白天天气现象
      */
-    @XmlElement(name = "text_night")
+    @JsonProperty("text_night")
     String textNight;
 
 }

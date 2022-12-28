@@ -12,8 +12,6 @@ import java.io.Serializable;
  * @date 2022/12/14
  */
 @Data
-@XmlRootElement(name = "alert")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class AlertData implements Serializable {
 
     private static final long serialVersionUID = 5644321444696546829L;

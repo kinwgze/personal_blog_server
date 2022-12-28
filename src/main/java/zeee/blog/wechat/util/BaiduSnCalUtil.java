@@ -6,8 +6,6 @@ package zeee.blog.wechat.util;
  * @description 根据百度给的示例改造
  */
 
-import cn.hutool.log.Log;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
@@ -18,9 +16,10 @@ public class BaiduSnCalUtil {
 
     /**
      * 获取api的sn
+     *
      * @param address 给定的地区编码
-     * @param ak 拿到的ak
-     * @param sk 拿到的sk
+     * @param ak      拿到的ak
+     * @param sk      拿到的sk
      * @return sn
      */
     public static String getSn(String address, String ak, String sk) {
@@ -33,7 +32,7 @@ public class BaiduSnCalUtil {
             Map<String, String> paramsMap = new LinkedHashMap<>();
             paramsMap.put("district_id", address);
             paramsMap.put("data_type", "all");
-            paramsMap.put("output", "xml");
+            paramsMap.put("output", "json");
             paramsMap.put("ak", ak);
 
             // 调用下面的toQueryString方法，对LinkedHashMap内所有value作utf8编码，拼接返回结果address=%E7%99%BE%E5%BA%A6%E5%A4%A7%E5%8E%A6&output=json&ak=yourak

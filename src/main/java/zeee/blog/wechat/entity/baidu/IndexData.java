@@ -12,8 +12,6 @@ import java.io.Serializable;
  * @date 2022/12/14
  */
 @Data
-@XmlRootElement(name = "index")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class IndexData implements Serializable {
     private static final long serialVersionUID = 331762245001894661L;
 
