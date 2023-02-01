@@ -9,9 +9,26 @@ import java.util.Comparator;
  */
 public class SortUtil implements Comparator {
 
+    /**
+     * 排序顺序枚举值
+     */
+    public enum SortDir {
+        /**
+         * 不排序
+         */
+        None,
+        /**
+         * 逆序
+         */
+        Desc,
+        /**
+         * 顺序
+         */
+        Asc
+    }
+
     public static final Character CHARACTER_ZERO = '0';
 
-    private SortUtil() {}
 
     /**
      * 比较两个字符串的顺序，一般用于混合字符串
