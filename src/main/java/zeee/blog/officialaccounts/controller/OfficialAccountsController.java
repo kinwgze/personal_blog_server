@@ -2,21 +2,17 @@ package zeee.blog.officialaccounts.controller;
 
 import cn.hutool.crypto.SecureUtil;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import zeee.blog.common.loghttp.LogHttp;
+import zeee.blog.officialaccounts.entity.BaseMessage;
+import zeee.blog.officialaccounts.handler.OAHandler;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * @Author zeeew
@@ -33,6 +29,9 @@ public class OfficialAccountsController {
     public static final String AES_KEY = "xmfFdyJV4WICICGfIK1Xcj8tmJNDV9UXzr17uyIucO3";
 
     public static final Logger log = LoggerFactory.getLogger(OfficialAccountsController.class);
+
+    @Resource
+    private OAHandler oaHandler;
 
     @LogHttp
     @ApiOperation(value = "微信校验接口，一般使用，修改微信公众号配置时，使用")
@@ -58,5 +57,13 @@ public class OfficialAccountsController {
         } else {
             return null;
         }
+    }
+
+//    @LogHttp
+    @RequestMapping(method = RequestMethod.POST)
+    public String receiveMessage(HttpServletRequest req) {
+        BaseMessage message = oaHandler.parseXml2Message(req);
+        log.info(message.toString());
+        return message.toString();
     }
 }
