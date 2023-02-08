@@ -15,6 +15,17 @@ public class BaseMessage implements Serializable {
 
     private static final long serialVersionUID = 3878988951158524780L;
 
+    public static final String TEXT_MESSAGE = "text";
+    public static final String IMAGE_MESSAGE = "image";
+    public static final String VOICE_MESSAGE = "voice";
+    public static final String VIDEO_MESSAGE = "video";
+    public static final String SHORTVIDEO_MESSAGE = "shortvideo";
+    public static final String LOCATION_MESSAGE = "location";
+    public static final String LINK_MESSAGE = "link";
+
+    public static final String MSG_TYPE = "MsgType";
+
+
     /**
      * 开发者微信号
      */

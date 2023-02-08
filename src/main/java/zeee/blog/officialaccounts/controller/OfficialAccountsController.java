@@ -64,6 +64,6 @@ public class OfficialAccountsController {
     public String receiveMessage(HttpServletRequest req) {
         BaseMessage message = oaHandler.parseXml2Message(req);
         log.info(message.toString());
-        return message.toString();
+        return "success";
     }
 }

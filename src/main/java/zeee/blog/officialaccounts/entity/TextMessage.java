@@ -17,4 +17,11 @@ public class TextMessage extends BaseMessage {
     @JsonProperty("Content")
     private String content;
 
+    @Override
+    public String toString() {
+        return "TextMessage{" +
+                "BaseMessage='" + super.toString() + '\'' +
+                "content='" + content + '\'' +
+                '}';
+    }
 }

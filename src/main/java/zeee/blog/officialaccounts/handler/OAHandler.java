@@ -2,8 +2,11 @@ package zeee.blog.officialaccounts.handler;
 
 import cn.hutool.json.JSONUtil;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zeee.blog.officialaccounts.entity.BaseMessage;
 import zeee.blog.officialaccounts.entity.TextMessage;
@@ -11,9 +14,9 @@ import zeee.blog.utils.JsonUtil;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Author zeeew
@@ -23,9 +26,14 @@ import java.util.Objects;
 @Service("oaHandler")
 public class OAHandler {
 
-    public TextMessage parseXml2Message(HttpServletRequest req) {
+    private static final Logger log = LoggerFactory.getLogger(OAHandler.class);
+
+    /**
+     * 将微信返回的数据转换为message对象
+     */
+    public BaseMessage parseXml2Message(HttpServletRequest req) {
         HashMap<String,String> map = new HashMap<>();
-        TextMessage message = new TextMessage();
+        BaseMessage message = null;
         try {
             // dom4j 用于读取XML 文件输入流的类
             ServletInputStream servletInputStream = req.getInputStream();
@@ -39,13 +47,14 @@ public class OAHandler {
             for (Element element : childrenElement) {
                 map.put(element.getName(), element.getStringValue());
             }
-            if ("text".equals(map.get("MsgType"))) {
+            if (BaseMessage.TEXT_MESSAGE.equals(map.get(BaseMessage.MSG_TYPE))) {
                 String s = JSONUtil.toJsonStr(map);
-                message = JSONUtil.toBean(s, TextMessage.class);
+                message = JsonUtil.jsonTOBean(s, TextMessage.class);
             }
+            // TODO other message types
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error(null, e);
         }
         return message;
     }
