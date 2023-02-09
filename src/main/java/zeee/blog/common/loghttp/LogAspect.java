@@ -47,15 +47,19 @@ public class LogAspect {
 //            String ip = getIpAddress(request);
             Object[] args = joinPoint.getArgs();
             String params = "";
-            if (null != args) {
-                List<Object> argList = new LinkedList<>();
-                for (Object arg : args) {
-                    if (arg instanceof ServletResponse) {
-                        continue;
+            try {
+                if (null != args) {
+                    List<Object> argList = new LinkedList<>();
+                    for (Object arg : args) {
+                        if (arg instanceof ServletResponse) {
+                            continue;
+                        }
+                        argList.add(arg);
                     }
-                    argList.add(arg);
+                    params = JsonUtil.objectToJsonString(argList.toArray());
                 }
-                params = JsonUtil.objectToJsonString(argList.toArray());
+            } catch (Exception e) {
+                log.error("failed to handler args");
             }
 
 //            String reqLog = String.format("request[%s]: url: %s , method: %s , ip: %s , auth: %s , parameters: %s%n",

@@ -62,6 +62,7 @@ public class OfficialAccountsController {
         }
     }
 
+    @LogHttp
     @RequestMapping(method = RequestMethod.POST, produces = "application/xml;charset=UTF-8")
     public Object receiveMessage(HttpServletRequest req) {
         return accountHandler.handlerMessage(req);
