@@ -2,7 +2,6 @@ package zeee.blog.officialaccounts.handler;
 
 import cn.hutool.json.JSONUtil;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
@@ -10,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import zeee.blog.officialaccounts.entity.BaseMessage;
 import zeee.blog.officialaccounts.entity.TextMessage;
+import zeee.blog.officialaccounts.entity.TextResponse;
 import zeee.blog.utils.JsonUtil;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,17 +22,16 @@ import java.util.List;
  * @Date 2023/2/8 19:46
  * @Description
  */
-@Service("oaHandler")
-public class OAHandler {
+@Service("accountHandler")
+public class AccountHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(OAHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(AccountHandler.class);
 
     /**
-     * 将微信返回的数据转换为message对象
+     * 处理接收到的消息
      */
-    public BaseMessage parseXml2Message(HttpServletRequest req) {
+    public Object handlerMessage(HttpServletRequest req) {
         HashMap<String,String> map = new HashMap<>();
-        BaseMessage message = null;
         try {
             // dom4j 用于读取XML 文件输入流的类
             ServletInputStream servletInputStream = req.getInputStream();
@@ -47,15 +45,27 @@ public class OAHandler {
             for (Element element : childrenElement) {
                 map.put(element.getName(), element.getStringValue());
             }
+            log.info("received message form wechat official account, message is \n" + map);
+            // 如果是文本消息，进入处理文本消息的方法
             if (BaseMessage.TEXT_MESSAGE.equals(map.get(BaseMessage.MSG_TYPE))) {
-                String s = JSONUtil.toJsonStr(map);
-                message = JsonUtil.jsonTOBean(s, TextMessage.class);
+                return handlerTextMessage(map);
             }
             // TODO other message types
 
         } catch (Exception e) {
-            log.error(null, e);
+            log.error("failed to handler message", e);
         }
-        return message;
+        return "";
+    }
+
+    private TextResponse handlerTextMessage(HashMap<String,String> map) {
+        TextMessage message = JsonUtil.jsonTOBean(JSONUtil.toJsonStr(map), TextMessage.class);
+        TextResponse textResponse = new TextResponse();
+        textResponse.setFromUserName(message.getToUserName());
+        textResponse.setToUserName(message.getFromUserName());
+        textResponse.setMsgType(message.getMsgType());
+        textResponse.setCreateTime(message.getCreateTime());
+        textResponse.setContent(message.getContent());
+        return textResponse;
     }
 }

@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import zeee.blog.common.loghttp.LogHttp;
 import zeee.blog.officialaccounts.entity.BaseMessage;
-import zeee.blog.officialaccounts.handler.OAHandler;
+import zeee.blog.officialaccounts.entity.BaseResponse;
+import zeee.blog.officialaccounts.entity.TextMessage;
+import zeee.blog.officialaccounts.entity.TextResponse;
+import zeee.blog.officialaccounts.handler.AccountHandler;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +34,7 @@ public class OfficialAccountsController {
     public static final Logger log = LoggerFactory.getLogger(OfficialAccountsController.class);
 
     @Resource
-    private OAHandler oaHandler;
+    private AccountHandler accountHandler;
 
     @LogHttp
     @ApiOperation(value = "微信校验接口，一般使用，修改微信公众号配置时，使用")
@@ -59,11 +62,8 @@ public class OfficialAccountsController {
         }
     }
 
-//    @LogHttp
-    @RequestMapping(method = RequestMethod.POST)
-    public String receiveMessage(HttpServletRequest req) {
-        BaseMessage message = oaHandler.parseXml2Message(req);
-        log.info(message.toString());
-        return "success";
+    @RequestMapping(method = RequestMethod.POST, produces = "application/xml;charset=UTF-8")
+    public Object receiveMessage(HttpServletRequest req) {
+        return accountHandler.handlerMessage(req);
     }
 }
