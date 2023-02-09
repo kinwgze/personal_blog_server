@@ -11,7 +11,10 @@ import zeee.blog.officialaccounts.entity.BaseMessage;
 import zeee.blog.officialaccounts.entity.TextMessage;
 import zeee.blog.officialaccounts.entity.TextResponse;
 import zeee.blog.utils.JsonUtil;
+import zeee.blog.wechat.entity.tian.DailySentenceData;
+import zeee.blog.wechat.service.WeChatService;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -26,6 +29,11 @@ import java.util.List;
 public class AccountHandler {
 
     private static final Logger log = LoggerFactory.getLogger(AccountHandler.class);
+
+    public static final String DAILY_SENTENCE = "每日一句";
+
+    @Resource
+    private WeChatService weChatService;
 
     /**
      * 处理接收到的消息
@@ -65,7 +73,12 @@ public class AccountHandler {
         textResponse.setToUserName(message.getFromUserName());
         textResponse.setMsgType(message.getMsgType());
         textResponse.setCreateTime(message.getCreateTime());
-        textResponse.setContent(message.getContent());
+        if (DAILY_SENTENCE.equals(message.getContent())) {
+            DailySentenceData dailySentenceData = weChatService.getTianResult();
+            textResponse.setContent(dailySentenceData.getRainBow());
+        } else {
+            textResponse.setContent(message.getContent());
+        }
         return textResponse;
     }
 }

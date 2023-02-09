@@ -15,9 +15,8 @@ import zeee.blog.utils.TimeUtil;
 import zeee.blog.wechat.entity.baidu.BaiduMapEntity;
 import zeee.blog.wechat.entity.baidu.BaiduResponse;
 import zeee.blog.wechat.entity.baidu.ForecastData;
-import zeee.blog.wechat.entity.tian.TianData;
-import zeee.blog.wechat.entity.tian.TianResponse;
-import zeee.blog.wechat.entity.weChat.WeChatResponse;
+import zeee.blog.wechat.entity.tian.DailySentenceData;
+import zeee.blog.wechat.entity.tian.DailySentenceResponse;
 import zeee.blog.wechat.util.BaiduSnCalUtil;
 import zeee.blog.wechat.util.WeChatHttpUtil;
 
@@ -68,7 +67,7 @@ public class WeChatService {
     public void pushMessage() {
         // 获取各种信息
         BaiduMapEntity map = getBaiduData();
-        TianData tianData = getTianResult();
+        DailySentenceData dailySentenceData = getTianResult();
         // 组装
         String[] openIdArr = openIds.split(",");
         for (String openId : openIdArr) {
@@ -109,11 +108,11 @@ public class WeChatService {
             birDay.put("color", "#44B549");
 
             JSONObject dailyEnglishCN = new JSONObject();
-            dailyEnglishCN.put("value", tianData.getRainBow());
+            dailyEnglishCN.put("value", dailySentenceData.getRainBow());
             dailyEnglishCN.put("color", "#44B549");
 
             JSONObject dailyEnglishEN = new JSONObject();
-            dailyEnglishEN.put("value", tianData.getEveryDay());
+            dailyEnglishEN.put("value", dailySentenceData.getEveryDay());
             dailyEnglishEN.put("color", "#44B549");
 
             JSONObject data = new JSONObject(new LinkedHashMap<>());
@@ -157,7 +156,7 @@ public class WeChatService {
     /**
      * 百度地图拿取天气的api
      */
-    private String getBaiduUrl(String addressCode) {
+    public String getBaiduUrl(String addressCode) {
         String url;
         try {
             String sn = BaiduSnCalUtil.getSn(addressCode, baiduAk, baiduSk);
@@ -171,23 +170,23 @@ public class WeChatService {
     }
 
 
-    private TianData getTianResult() {
+    public DailySentenceData getTianResult() {
         try {
             String url1 = "https://apis.tianapi.com/caihongpi/index?key=" + tianApiSecret;
             String url2 = "https://apis.tianapi.com/everyday/index?key=" + tianApiSecret;
             String rainBow = HttpUtil.get(url1);
             String everyDay = HttpUtil.get(url2);
-            TianResponse rainBowResponse = JSONUtil.toBean(rainBow, TianResponse.class);
-            TianResponse everyDayResponse = JSONUtil.toBean(everyDay, TianResponse.class);
+            DailySentenceResponse rainBowResponse = JSONUtil.toBean(rainBow, DailySentenceResponse.class);
+            DailySentenceResponse everyDayResponse = JSONUtil.toBean(everyDay, DailySentenceResponse.class);
 
-            TianData tianData = new TianData();
+            DailySentenceData dailySentenceData = new DailySentenceData();
             if (Objects.nonNull(rainBowResponse) && Objects.nonNull(rainBowResponse.getResult())) {
-                tianData.setRainBow(rainBowResponse.getResult().getContent());
+                dailySentenceData.setRainBow(rainBowResponse.getResult().getContent());
             }
             if (Objects.nonNull(everyDayResponse) && Objects.nonNull(everyDayResponse.getResult())) {
-                tianData.setEveryDay(everyDayResponse.getResult().getContent());
+                dailySentenceData.setEveryDay(everyDayResponse.getResult().getContent());
             }
-            return tianData;
+            return dailySentenceData;
         } catch (Exception e) {
             throw new AppException(ErrorCodes.GET_TIAN_DATA_ERROR);
         }

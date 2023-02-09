@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @Description
  */
 @Data
-public class TianData implements Serializable {
+public class DailySentenceData implements Serializable {
     private static final long serialVersionUID = -3230527857457659049L;
 
     private String rainBow;

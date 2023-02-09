@@ -15,6 +15,11 @@
     <!--             2.如果日期没有发生变化，但是当前日志的文件大小超过1KB时，对当前日志进行分割 重命名-->
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>/var/log/blog/blog.log</File>
+        <!--日志文档输出格式-->
+        <encoder>
+            <pattern>[%-5level] %d{HH:mm:ss} [%thread] Trace[%X{trace_id}] UID[%X{UID}] %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
         <!-- rollingPolicy:当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名。 -->
         <!-- TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

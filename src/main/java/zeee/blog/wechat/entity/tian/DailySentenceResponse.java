@@ -10,13 +10,13 @@ import java.io.Serializable;
  * @Description
  */
 @Data
-public class TianResponse implements Serializable {
+public class DailySentenceResponse implements Serializable {
     private static final long serialVersionUID = 4511106773366078223L;
 
     private Integer code;
 
     private String msg;
 
-    private TianResult result;
+    private DailySentenceResult result;
 
 }
