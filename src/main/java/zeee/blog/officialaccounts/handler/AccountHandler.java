@@ -39,7 +39,7 @@ public class AccountHandler {
      * 处理接收到的消息
      */
     public Object handlerMessage(HttpServletRequest req) {
-        HashMap<String,String> map = new HashMap<>();
+        HashMap<String,String> map = new HashMap<>(8);
         try {
             // dom4j 用于读取XML 文件输入流的类
             ServletInputStream servletInputStream = req.getInputStream();
