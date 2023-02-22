@@ -25,7 +25,7 @@ import static zeee.blog.common.operlog.entity.OperationLog.RESULT_SUCCESS;
 /**
  * @author ：wz
  * @date ：Created in 2022/5/6 20:09
- * @description：与git之间进行同步
+ * @description 与git之间进行同步
  */
 @Api(tags = "github相关操作")
 @RestController

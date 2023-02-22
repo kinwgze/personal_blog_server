@@ -5,12 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 
 /**
  * @author wz
@@ -68,6 +72,30 @@ public class HttpRestTemplate {
     public <T> ResponseEntity<T> delete(String url, Object o) {
         HttpEntity<Object> entity = new HttpEntity<>(o);
         return this.exchange(url, HttpMethod.DELETE, entity, (Class<T>) null);
+    }
+
+    public <T> ResponseEntity<T> runWithSome(Callable<T> c) throws Throwable {
+        // a demo, like runWithAuth
+        int retryTime = 1;
+        do {
+            ResponseEntity resp = null;
+            try {
+                resp = (ResponseEntity) c.call();
+            } catch (HttpClientErrorException e) {
+                if (Objects.equals(e.getStatusCode(), HttpStatus.UNAUTHORIZED)) {
+                    // do something, like refresh token
+                    continue;
+                } else {
+                    return resp;
+                }
+            }
+            if (resp != null && Objects.equals(resp.getStatusCode(), HttpStatus.UNAUTHORIZED)) {
+                // do something, like refresh token
+            } else {
+                return resp;
+            }
+        } while (retryTime-- > 0);
+        return null;
     }
 
 
