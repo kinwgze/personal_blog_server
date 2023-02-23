@@ -21,7 +21,7 @@ import java.util.List;
  */
 @Api(tags = "博客文章信息展示")
 @RestController
-@RequestMapping("/blog/display")
+@RequestMapping("/api/blog/display")
 public class DisplayController {
 
     /**
@@ -36,7 +36,7 @@ public class DisplayController {
     @LogHttp
     @ApiOperation("通过类别获取博客文章列表")
     @ApiImplicitParam(name = "category", value = "文章类别", required = true, dataType = "int")
-    @RequestMapping(value = "getNameListByCategory/{category}", method = RequestMethod.GET)
+    @RequestMapping(value = "/getNameListByCategory/{category}", method = RequestMethod.GET)
     public RpcResult<List<MdNamePathVO>> getNameListByCategory(@PathVariable(value = "category") Integer category) {
         RpcResult<List<MdNamePathVO>> result = new RpcResult<>();
         List<MdNamePathVO> res = displayHandler.getNameListByCategory(category);
@@ -50,7 +50,7 @@ public class DisplayController {
             @ApiImplicitParam(name = "filePath", value = "文章路径", required = true, dataType = "string"),
             @ApiImplicitParam(name = "category", value = "文章类别", required = true, dataType = "int")
     })
-    @RequestMapping(value = "getMarkdownContent", method = RequestMethod.GET)
+    @RequestMapping(value = "/getMarkdownContent", method = RequestMethod.GET)
     public RpcResult<String> getMarkdownContent(@RequestParam(value = "filePath") String filePath,
                                                 @RequestParam(value = "category") Integer category) {
         RpcResult<String> result = new RpcResult<>();

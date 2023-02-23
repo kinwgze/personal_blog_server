@@ -13,14 +13,14 @@ import javax.annotation.Resource;
  * @date 2022/12/14
  */
 @RestController
-@RequestMapping("/wechat")
+@RequestMapping("/api/wechat")
 public class WeChatController {
 
     @Resource
     private WeChatService weChatService;
 
-    @RequestMapping(value = "test", method = RequestMethod.GET)
-    public void test() {
-        weChatService.pushMessage();
-    }
+//    @RequestMapping(value = "test", method = RequestMethod.GET)
+//    public void test() {
+//        weChatService.pushMessage();
+//    }
 }

@@ -24,7 +24,7 @@ import java.util.*;
  */
 @Api(tags = "微信消息接收")
 @RestController
-@RequestMapping("/official/account")
+@RequestMapping("/api/official/account")
 public class OfficialAccountsController {
 
     private static final String TOKEN = "WX692C1DA5ACC99BC6";

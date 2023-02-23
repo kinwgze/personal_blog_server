@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 @Api(tags = "门禁申请系统")
 @RestController
-@RequestMapping("/guard/system")
+@RequestMapping("/api/guard/system")
 public class GuardSystemController {
 
     @Resource
@@ -34,7 +34,7 @@ public class GuardSystemController {
     @LogHttp
     @ApiOperation(value = "访客申请入口")
     @ApiImplicitParam(name = "guestRequestInfo", value = "访客申请信息", required = true, dataType = "GuestRequestInfo")
-    @RequestMapping(value = "requestForPermit", method = RequestMethod.POST)
+    @RequestMapping(value = "/requestForPermit", method = RequestMethod.POST)
     public RpcResult<GuestResponseVO> requestForPermit(@RequestBody GuestRequestInfo guestRequestInfo) {
         RpcResult<GuestResponseVO> res = new RpcResult<>();
         try {
@@ -55,7 +55,7 @@ public class GuardSystemController {
             @ApiImplicitParam(name = "phoneNumber", value = "手机号", required = true, dataType = "string"),
             @ApiImplicitParam(name = "checkCode", value = "校验码", required = true, dataType = "string")
     })
-    @RequestMapping(value = "queryRequestInfo", method = RequestMethod.GET)
+    @RequestMapping(value = "/queryRequestInfo", method = RequestMethod.GET)
     public RpcResult<GuestResponseVO> queryRequestInfo(String phoneNumber, String checkCode) {
         RpcResult<GuestResponseVO> res = new RpcResult<>();
         try {
@@ -77,7 +77,7 @@ public class GuardSystemController {
     @LogHttp
     @ApiOperation(value = "校验信息，是否准许进入")
     @ApiImplicitParam(name = "uuid", value = "uuid", required = true, dataType = "string")
-    @RequestMapping(value = "checkPermit", method = RequestMethod.GET)
+    @RequestMapping(value = "/checkPermit", method = RequestMethod.GET)
     public RpcResult<Boolean> checkPermit(String uuid) {
         RpcResult<Boolean> result = new RpcResult<>();
         try {
