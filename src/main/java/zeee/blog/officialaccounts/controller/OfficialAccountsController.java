@@ -5,17 +5,19 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import zeee.blog.common.loghttp.LogHttp;
-import zeee.blog.officialaccounts.entity.BaseMessage;
-import zeee.blog.officialaccounts.entity.BaseResponse;
-import zeee.blog.officialaccounts.entity.TextMessage;
-import zeee.blog.officialaccounts.entity.TextResponse;
 import zeee.blog.officialaccounts.handler.AccountHandler;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author zeeew
