@@ -1,0 +1,12 @@
+[Unit]
+Description=Blog Server #描述
+After=syslog.target mariadb.service #依赖
+Wants=mariadb.service
+
+[Service]
+User=root
+ExecStart=java -Xmx2048m -Xms1024m -XX:ErrorFile=/var/log/blog/hs_err_pid<pid>.log -Duser.language-zh -Duser.county=CN -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7000 -jar /var/www/blog.jar --spring.profiles.active=prod
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
