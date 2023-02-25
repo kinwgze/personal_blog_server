@@ -68,7 +68,7 @@ public class GuardSystemHandler {
             guestVisitInfoDO.setCommitTime(new Date());
             guestVisitInfoDO.setValidation(true);
             //先把时间转换为Date，然后再转换为对应天数
-            Date startDate = new Date(requestInfo.getStartTimeStamp());
+            Date startDate = DateUtil.parse(requestInfo.getStartTime());
             guestVisitInfoDO.setStartTime(startDate);
             String dayDate = DateUtil.formatDate(startDate);
             // 准许的时间为申请时间当天08：00：00-20：00：00
@@ -104,6 +104,8 @@ public class GuardSystemHandler {
             guestResponseVO.setPhoneNumber(guestVisitInfoDO.getPhoneNumber());
             guestResponseVO.setCheckCode(guestVisitInfoDO.getCheckCode());
             guestResponseVO.setUuid(guestVisitInfoDO.getUuid());
+            guestResponseVO.setStartTime(guestVisitInfoDO.getStartTime());
+            guestResponseVO.setEndTime(guestVisitInfoDO.getEndTime());
             return guestResponseVO;
         } catch (Exception e) {
             log.error("add guest visit info error", e);

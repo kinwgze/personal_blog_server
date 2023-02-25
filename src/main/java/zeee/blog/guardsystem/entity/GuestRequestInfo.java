@@ -31,8 +31,8 @@ public class GuestRequestInfo implements Serializable {
     /**
      * 所申请的日期
      */
-    @ApiModelProperty(value = "申请开始时间", example = "1670284800000")
-    private Long startTimeStamp;
+    @ApiModelProperty(value = "申请开始时间", example = "2023-1-1 02:20")
+    private String startTime;
 
     /**
      * 备注
