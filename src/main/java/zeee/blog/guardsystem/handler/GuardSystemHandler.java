@@ -69,8 +69,11 @@ public class GuardSystemHandler {
             guestVisitInfoDO.setValidation(true);
             //先把时间转换为Date，然后再转换为对应天数
             Date startDate = DateUtil.parse(requestInfo.getStartTime());
-            guestVisitInfoDO.setStartTime(startDate);
-            String dayDate = DateUtil.formatDate(startDate);
+            if (Objects.nonNull(requestInfo.getStartTime())) {
+                guestVisitInfoDO.setStartTime(startDate);
+            } else {
+                guestVisitInfoDO.setStartTime(new Date());
+            }
             // 准许的时间为申请时间当天08：00：00-20：00：00
             Long endTime = checkStartAndEndTime(startDate);
             if (endTime != null) {
